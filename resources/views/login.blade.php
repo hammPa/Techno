@@ -43,6 +43,12 @@
                 </div>
             @endif
 
+            @if (session('status'))
+                <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl">
+                    {{ session('status') }}
+                </div>
+            @endif
+
             <form action="{{ route('login') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
@@ -54,7 +60,7 @@
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wide">Password</label>
-                        <a href="#" class="text-xs text-rose-600 font-medium hover:underline">Lupa?</a>
+                        <a href="{{ route('password.request') }}" class="text-xs text-rose-600 font-medium hover:underline">Lupa?</a>
                     </div>
                     <input type="password" name="password" required placeholder="••••••••" 
                         class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500">
