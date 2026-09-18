@@ -60,7 +60,20 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => (function () {
+                    if (env('AIVEN_CA_CERT')) {
+                        $certPath = storage_path('app/ca.pem');
+                        if (!file_exists($certPath)) {
+                            if (!is_dir(dirname($certPath))) {
+                                mkdir(dirname($certPath), 0755, true);
+                            }
+                            file_put_contents($certPath, env('AIVEN_CA_CERT'));
+                        }
+                        return $certPath;
+                    }
+
+                    return env('MYSQL_ATTR_SSL_CA') ? base_path(env('MYSQL_ATTR_SSL_CA')) : null;
+                })(),
             ]) : [],
         ],
 
