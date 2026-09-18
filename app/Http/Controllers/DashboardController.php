@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Service;
 use App\Models\Portfolio;
 use App\Models\MuaProfile;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -14,7 +15,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // JIKA YANG LOGIN MUA: Tampilkan manajemen profil, paket, dan portofolio
+        // JIKA YANG LOGIN MUA
         if ($user->role === 'mua') {
             $profile = MuaProfile::firstOrCreate(
                 ['user_id' => $user->id],
@@ -22,18 +23,30 @@ class DashboardController extends Controller
             );
             $services = Service::where('user_id', $user->id)->latest()->get();
             $portfolios = Portfolio::where('user_id', $user->id)->latest()->get();
+            
+            // Ambil daftar booking masuk ke MUA
+            $bookings = Booking::where('mua_id', $user->id)
+                ->with(['client', 'service'])
+                ->latest()
+                ->get();
 
-            return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios'));
+            return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios', 'bookings'));
         }
 
-        // JIKA YANG LOGIN KLIEN: Tampilkan Marketplace seluruh MUA yang terdaftar
+        // JIKA YANG LOGIN KLIEN
         $muaList = User::where('role', 'mua')
             ->whereNotNull('email_verified_at')
             ->with(['muaProfile', 'services', 'portfolios'])
             ->latest()
             ->get();
 
-        return view('dashboard.client', compact('user', 'muaList'));
+        // Ambil riwayat pesanan milik Klien
+        $myBookings = Booking::where('client_id', $user->id)
+            ->with(['mua.muaProfile', 'service'])
+            ->latest()
+            ->get();
+
+        return view('dashboard.client', compact('user', 'muaList', 'myBookings'));
     }
 
     // Detail MUA yang diklik klien (Lihat portofolio, harga, chat WA)

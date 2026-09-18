@@ -64,4 +64,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(Portfolio::class);
     }
+
+
+    // Booking yang diajukan oleh user sebagai Klien
+    public function clientBookings()
+    {
+        return $this->hasMany(Booking::class, 'client_id');
+    }
+
+    // Booking yang diterima oleh user sebagai MUA
+    public function muaBookings()
+    {
+        return $this->hasMany(Booking::class, 'mua_id');
+    }
 }

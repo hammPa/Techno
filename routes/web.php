@@ -4,13 +4,25 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PasswordResetController;
+use App\Models\User;
+
 
 // landing page
 Route::get('/', function () {
-    return view('welcome');
+    $muaList = User::where('role', 'mua')
+        ->whereNotNull('email_verified_at')
+        ->with(['muaProfile', 'services', 'portfolios'])
+        ->latest()
+        ->take(6) // Tampilkan 6 MUA unggulan untuk landing page
+        ->get();
+
+    return view('welcome', compact('muaList'));
 })->name('home');
 
+
+Route::get('/mua/{mua}', [DashboardController::class, 'showMua'])->name('mua.detail');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -42,7 +54,6 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/mua/{mua}', [DashboardController::class, 'showMua'])->name('mua.detail');
 
     // MUA Actions
     Route::post('/mua/profile', [DashboardController::class, 'updateProfile'])->name('mua.profile.update');
@@ -53,4 +64,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
 
     // Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Rute Reservasi & Jadwal Booking
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
 });

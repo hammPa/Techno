@@ -6,7 +6,7 @@
     <title>MUA Dashboard - GlowMUA</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-rose-50/30 text-slate-800 antialiased min-h-screen flex pb-16 md:pb-0 font-sans">
+<body class="bg-rose-50/30 text-slate-800 antialiased min-h-screen flex pb-20 md:pb-0 font-sans">
 
     <!-- Desktop Sidebar -->
     <aside class="hidden md:flex flex-col w-60 bg-white border-r border-rose-100 p-5 space-y-6 shrink-0">
@@ -24,8 +24,14 @@
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 bg-rose-50 text-rose-700 rounded-xl font-semibold text-xs">
                 <span>📊</span> Ringkasan
             </a>
+            <a href="#reservasi" class="flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
+                <span>📅</span> Reservasi ({{ $bookings->where('status', 'pending')->count() }})
+            </a>
             <a href="#paket" class="flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
                 <span>💄</span> Paket Rias ({{ $services->count() }})
+            </a>
+            <a href="#profil" class="flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
+                <span>⚙️</span> Profil Studio
             </a>
         </nav>
 
@@ -42,8 +48,8 @@
         <!-- Top Bar -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Studio MUA: {{ $profile->studio_name ?? $user->name }} 👋</h1>
-                <p class="text-xs text-slate-500">Kelola jadwal booking dan tarif layanan riasmu</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Studio: {{ $profile->studio_name ?? $user->name }} 👋</h1>
+                <p class="text-xs text-slate-500">Kelola reservasi, paket layanan, dan portofolio studio Anda</p>
             </div>
             <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 font-bold flex items-center justify-center text-xs border border-rose-200 uppercase shadow-sm">
                 {{ substr($user->name, 0, 2) }}
@@ -51,18 +57,18 @@
         </div>
 
         @if(session('success'))
-            <div class="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center justify-between">
+            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-2xl flex items-center justify-between shadow-xs">
                 <span>✓ {{ session('success') }}</span>
             </div>
         @endif
 
-        <!-- Metric Cards -->
+        <!-- Kartu Metrik -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
             <div class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm flex items-center gap-3">
                 <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl text-lg">⏳</div>
                 <div>
-                    <span class="text-[11px] text-slate-400 font-medium">Jadwal Masuk</span>
-                    <h3 class="text-base sm:text-lg font-bold text-slate-900">0 Permintaan</h3>
+                    <span class="text-[11px] text-slate-400 font-medium">Permintaan Masuk</span>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900">{{ $bookings->where('status', 'pending')->count() }} Booking</h3>
                 </div>
             </div>
 
@@ -77,14 +83,85 @@
             <div class="bg-white p-4 rounded-2xl border border-rose-100 shadow-sm flex items-center gap-3">
                 <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl text-lg">💰</div>
                 <div>
-                    <span class="text-[11px] text-slate-400 font-medium">Estimasi Pendapatan</span>
-                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Rp 0</h3>
+                    <span class="text-[11px] text-slate-400 font-medium">Total Terjadwal / Selesai</span>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900">
+                        Rp {{ number_format($bookings->whereIn('status', ['confirmed', 'completed'])->sum('total_price'), 0, ',', '.') }}
+                    </h3>
                 </div>
             </div>
         </div>
 
+        <!-- Daftar Booking Masuk -->
+        <div id="reservasi" class="bg-white rounded-3xl border border-rose-100 p-5 sm:p-6 shadow-sm mb-8">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                <div>
+                    <h2 class="font-bold text-base text-slate-900">Daftar Reservasi Masuk</h2>
+                    <p class="text-xs text-slate-400">Konfirmasi atau tolak jadwal rias yang diajukan oleh calon klien</p>
+                </div>
+                <span class="text-xs font-bold text-rose-600">{{ $bookings->where('status', 'pending')->count() }} Menunggu</span>
+            </div>
+
+            <div class="space-y-3">
+                @forelse($bookings as $bk)
+                    <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-sm text-slate-900">{{ $bk->service->title }}</h4>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase
+                                    {{ $bk->status === 'confirmed' ? 'bg-emerald-100 text-emerald-800' : ($bk->status === 'pending' ? 'bg-amber-100 text-amber-800' : ($bk->status === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-700')) }}">
+                                    {{ $bk->status }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-600 mt-1">Klien: <strong>{{ $bk->client->name }}</strong> (WA: {{ $bk->client->phone }})</p>
+                            <p class="text-xs text-slate-500 mt-0.5">📅 {{ date('d M Y', strtotime($bk->booking_date)) }} • ⏰ Pukul {{ date('H:i', strtotime($bk->booking_time)) }} WIB</p>
+                            <p class="text-[11px] text-slate-500 mt-1">📍 {{ $bk->location_address }}</p>
+                            @if($bk->notes)
+                                <p class="text-[11px] text-slate-400 italic mt-0.5">Catatan: "{{ $bk->notes }}"</p>
+                            @endif
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-200">
+                            <span class="font-bold text-sm text-rose-600">Rp {{ number_format($bk->total_price, 0, ',', '.') }}</span>
+
+                            @if($bk->status === 'pending')
+                                <div class="flex items-center gap-2">
+                                    <form action="{{ route('bookings.updateStatus', $bk->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="confirmed">
+                                        <button type="submit" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition">
+                                            Terima
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('bookings.updateStatus', $bk->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="cancelled">
+                                        <button type="submit" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl text-xs font-semibold transition">
+                                            Tolak
+                                        </button>
+                                    </form>
+                                </div>
+                            @elseif($bk->status === 'confirmed')
+                                <form action="{{ route('bookings.updateStatus', $bk->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="completed">
+                                    <button type="submit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition">
+                                        Tandai Selesai
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-xs text-slate-400 text-center py-6">Belum ada pesanan riasan yang masuk.</p>
+                @endforelse
+            </div>
+        </div>
+
         <!-- Form Profil Studio MUA -->
-        <div class="bg-white rounded-3xl border border-rose-100 p-5 sm:p-6 shadow-sm mb-6">
+        <div id="profil" class="bg-white rounded-3xl border border-rose-100 p-5 sm:p-6 shadow-sm mb-6">
             <h2 class="font-bold text-base text-slate-900 mb-3">Pengaturan Profil Studio</h2>
             <form action="{{ route('mua.profile.update') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 @csrf
@@ -100,12 +177,12 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Username Instagram</label>
-                    <input type="text" name="instagram_username" value="{{ old('instagram_username', $profile->instagram_username) }}" placeholder="tanpa @"
+                    <input type="text" name="instagram_username" value="{{ old('instagram_username', $profile->instagram_username) }}" placeholder="tanpa tanda @"
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-rose-500">
                 </div>
                 <div class="sm:col-span-3">
                     <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Bio / Keahlian</label>
-                    <input type="text" name="bio" value="{{ old('bio', $profile->bio) }}" placeholder="Spesialisasi riasan adat, wisuda glowing natural, dll."
+                    <input type="text" name="bio" value="{{ old('bio', $profile->bio) }}" placeholder="Spesialisasi riasan wisuda glowing, adat Minang, bridal modern, dll."
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-rose-500">
                 </div>
                 <div class="sm:col-span-3 text-right">
@@ -122,11 +199,11 @@
             <form action="{{ route('mua.portfolio.store') }}" method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
                 @csrf
                 <div>
-                    <input type="text" name="title" required placeholder="Judul Riasan (misal: Wisuda Natural)"
+                    <input type="text" name="title" required placeholder="Judul Riasan (contoh: Wisuda Flawless)"
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-rose-500">
                 </div>
                 <div>
-                    <input type="url" name="image_url" required placeholder="URL Foto Gambar (https://...)"
+                    <input type="url" name="image_url" required placeholder="URL Gambar (https://...)"
                         class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-rose-500">
                 </div>
                 <div>
@@ -167,7 +244,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     <div class="sm:col-span-2">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nama Paket Rias</label>
-                        <input type="text" name="title" required placeholder="Contoh: Makeup Wisuda Natural Glam"
+                        <input type="text" name="title" required placeholder="Contoh: Makeup Wisuda Glowing"
                             class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-rose-500">
                     </div>
 
@@ -253,6 +330,10 @@
         <a href="{{ route('dashboard') }}" class="flex flex-col items-center text-rose-600">
             <span class="text-base">📊</span>
             <span class="text-[10px] font-semibold mt-0.5">Ringkasan</span>
+        </a>
+        <a href="#reservasi" class="flex flex-col items-center text-slate-400 hover:text-rose-600">
+            <span class="text-base">📅</span>
+            <span class="text-[10px] font-medium mt-0.5">Reservasi</span>
         </a>
         <a href="#paket" class="flex flex-col items-center text-slate-400 hover:text-rose-600">
             <span class="text-base">💄</span>

@@ -8,8 +8,8 @@
 </head>
 <body class="bg-rose-50/30 text-slate-800 antialiased min-h-screen py-6 px-4 sm:px-6 lg:px-8 font-sans">
     <div class="max-w-4xl mx-auto space-y-6">
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-rose-600 transition">
-            ← Kembali ke Marketplace
+        <a href="{{ auth()->check() ? route('dashboard') : route('home') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-rose-600 transition">
+            ← {{ auth()->check() ? 'Kembali ke Marketplace' : 'Kembali ke Beranda' }}
         </a>
 
         <!-- Profil Header -->
@@ -84,6 +84,79 @@
                     <p class="py-6 text-center text-xs text-slate-400">Belum ada paket tarif yang terdaftar.</p>
                 @endforelse
             </div>
+        </div>
+
+        <!-- Form Pengajuan Booking Jadwal & Lokasi -->
+        <div class="bg-white rounded-3xl border border-rose-100 p-6 shadow-xs">
+            <div class="mb-4">
+                <h2 class="font-bold text-base text-slate-900">Reservasi Jadwal Rias</h2>
+                <p class="text-xs text-slate-500">Tentukan jadwal rias dan lokasi acara Anda</p>
+            </div>
+
+            @auth
+                @if(auth()->user()->role === 'client')
+                    @if($mua->services->count() > 0)
+                        <form action="{{ route('bookings.store') }}" method="POST" class="space-y-4">
+                            @csrf
+                            <input type="hidden" name="mua_id" value="{{ $mua->id }}">
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Pilih Paket Rias</label>
+                                    <select name="service_id" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                                        @foreach($mua->services as $srv)
+                                            <option value="{{ $srv->id }}">
+                                                {{ $srv->title }} - Rp {{ number_format($srv->price, 0, ',', '.') }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Tanggal Acara</label>
+                                    <input type="date" name="booking_date" min="{{ date('Y-m-d') }}" required
+                                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Waktu / Jam Mulai Rias</label>
+                                    <input type="time" name="booking_time" required
+                                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Catatan Tambahan (Opsional)</label>
+                                    <input type="text" name="notes" placeholder="Misal: request look soft korean / bawa lighting sendiri"
+                                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Alamat Lengkap Lokasi Janji Rias</label>
+                                    <textarea name="location_address" rows="2" required placeholder="Tuliskan alamat lengkap lokasi janji temu (contoh: Jl. Hamka No. 12, Hotel Truntum Padang Lt. 3)"
+                                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-rose-500"></textarea>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm transition shadow-sm shadow-rose-200">
+                                Ajukan Jadwal Booking Sekarang
+                            </button>
+                        </form>
+                    @else
+                        <p class="text-xs text-slate-400 py-4 text-center">MUA ini belum membuka paket pemesanan.</p>
+                    @endif
+                @else
+                    <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs text-center">
+                        Anda masuk dengan akun MUA. Masuklah dengan akun Klien jika ingin mengajukan reservasi.
+                    </div>
+                @endif
+            @else
+                <div class="p-4 bg-rose-50 border border-rose-100 rounded-xl text-center space-y-2">
+                    <p class="text-xs text-slate-600 font-medium">Masuk terlebih dahulu untuk melakukan reservasi jadwal riasan dengan MUA ini.</p>
+                    <a href="{{ route('login') }}" class="inline-block px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold transition">
+                        Masuk Sekarang
+                    </a>
+                </div>
+            @endauth
         </div>
     </div>
 </body>

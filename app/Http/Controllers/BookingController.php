@@ -1,0 +1,63 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Booking;
+use App\Models\Service;
+use Illuminate\Http\Request;
+
+class BookingController extends Controller
+{
+    /**
+     * Menyimpan pengajuan booking baru dari akun Klien.
+     */
+    public function store(Request $request)
+    {
+        if (auth()->user()->role !== 'client') {
+            return back()->withErrors(['booking' => 'Hanya akun klien yang dapat mengajukan reservasi.']);
+        }
+
+        $validated = $request->validate([
+            'mua_id' => ['required', 'exists:users,id'],
+            'service_id' => ['required', 'exists:services,id'],
+            'booking_date' => ['required', 'date', 'after_or_equal:today'],
+            'booking_time' => ['required'],
+            'location_address' => ['required', 'string', 'max:500'],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $service = Service::findOrFail($validated['service_id']);
+
+        Booking::create([
+            'client_id' => auth()->id(),
+            'mua_id' => $validated['mua_id'],
+            'service_id' => $service->id,
+            'booking_date' => $validated['booking_date'],
+            'booking_time' => $validated['booking_time'],
+            'location_address' => $validated['location_address'],
+            'total_price' => $service->price,
+            'status' => 'pending',
+            'notes' => $validated['notes'],
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Reservasi rias berhasil diajukan! Menunggu konfirmasi MUA.');
+    }
+
+    /**
+     * Memperbarui status reservasi oleh MUA (confirmed / cancelled / completed).
+     */
+    public function updateStatus(Request $request, Booking $booking)
+    {
+        if ($booking->mua_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengubah pesanan ini.');
+        }
+
+        $validated = $request->validate([
+            'status' => ['required', 'in:confirmed,cancelled,completed'],
+        ]);
+
+        $booking->update(['status' => $validated['status']]);
+
+        return back()->with('success', 'Status pesanan berhasil diperbarui!');
+    }
+}
