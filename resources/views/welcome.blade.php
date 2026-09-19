@@ -70,12 +70,25 @@
                     <div class="bg-white rounded-3xl border border-rose-100 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between">
                         <div>
                             <!-- Foto Portofolio -->
+                            <!-- Foto Portofolio -->
                             <div class="h-48 bg-rose-50 relative overflow-hidden flex items-center justify-center">
                                 @if($mua->portfolios->isNotEmpty() && $mua->portfolios->first()->image_url)
-                                    <img src="{{ $mua->portfolios->first()->image_url }}" alt="{{ $mua->name }}" class="w-full h-full object-cover">
+                                    @php
+                                        $porto = $mua->portfolios->first();
+                                        $imgSrc = str_starts_with($porto->image_url, 'http')
+                                            ? $porto->image_url
+                                            : Storage::url($porto->image_url);
+                                    @endphp
+
+                                    <img
+                                        src="{{ $imgSrc }}"
+                                        alt="{{ $mua->name }}"
+                                        class="w-full h-full object-cover"
+                                    >
                                 @else
                                     <span class="text-4xl">🪞</span>
                                 @endif
+
                                 <span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700 shadow-xs">
                                     📍 {{ $mua->muaProfile->city ?? 'Indonesia' }}
                                 </span>

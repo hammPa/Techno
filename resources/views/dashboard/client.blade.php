@@ -312,7 +312,7 @@
                             @if($mua->portfolios->isNotEmpty() && $mua->portfolios->first()->image_url)
                                 @php
                                     $firstImg = $mua->portfolios->first()->image_url;
-                                    $coverSrc = str_starts_with($firstImg, 'http') ? $firstImg : asset('storage/' . $firstImg);
+                                    $coverSrc = str_starts_with($firstImg, 'http') ? $firstImg : Storage::url($firstImg);
                                 @endphp
                                 <img src="{{ $coverSrc }}" alt="{{ $mua->name }}" class="w-full h-full object-cover">
                             @else

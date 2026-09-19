@@ -49,7 +49,7 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 @forelse($mua->portfolios as $porto)
                     @php
-                        $imgSrc = str_starts_with($porto->image_url, 'http') ? $porto->image_url : asset('storage/' . $porto->image_url);
+                        $imgSrc = str_starts_with($porto->image_url, 'http') ? $porto->image_url : Storage::url($porto->image_url);
                     @endphp
                     <div class="rounded-2xl overflow-hidden border border-slate-100 group relative">
                         <img src="{{ $imgSrc }}" alt="{{ $porto->title }}" class="w-full h-44 object-cover group-hover:scale-105 transition duration-300">

@@ -280,7 +280,7 @@
                                 </td>
                                 <td class="p-3 text-center">
                                     @if($py->proof_image)
-                                        <a href="{{ asset('storage/' . $py->proof_image) }}" target="_blank" class="text-rose-600 underline font-semibold text-[11px]">
+                                        <a href="{{ Storage::url($py->proof_image) }}" target="_blank" class="text-rose-600 underline font-semibold text-[11px]">
                                             Lihat Struk
                                         </a>
                                     @else
@@ -367,7 +367,7 @@
                     <div class="relative group rounded-xl overflow-hidden border border-slate-100 shadow-xs">
                         {{-- Cek jika data lama masih berupa link http:// atau file lokal storage --}}
                         @php
-                            $src = str_starts_with($p->image_url, 'http') ? $p->image_url : asset('storage/' . $p->image_url);
+                            $src = str_starts_with($p->image_url, 'http') ? $p->image_url : Storage::url($p->image_url);
                         @endphp
                         <img src="{{ $src }}" alt="{{ $p->title }}" class="w-full h-32 object-cover group-hover:scale-105 transition duration-300">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-between">

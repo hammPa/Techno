@@ -48,8 +48,8 @@
                         </td>
                         <td class="p-4 text-center">
                             @if($pm->proof_image)
-                                <a href="{{ asset('storage/' . $pm->proof_image) }}" target="_blank" class="inline-block group relative">
-                                    <img src="{{ asset('storage/' . $pm->proof_image) }}" alt="Bukti Transfer" class="w-12 h-12 rounded-lg object-cover border border-slate-200 group-hover:scale-105 transition shadow-xs mx-auto">
+                                <a href="{{ Storage::url($pm->proof_image) }}" target="_blank" class="inline-block group relative">
+                                    <img src="{{ Storage::url($pm->proof_image) }}" alt="Bukti Transfer" class="w-12 h-12 rounded-lg object-cover border border-slate-200 group-hover:scale-105 transition shadow-xs mx-auto">
                                     <span class="block text-[9px] text-rose-600 mt-0.5 underline">Lihat Foto</span>
                                 </a>
                             @else

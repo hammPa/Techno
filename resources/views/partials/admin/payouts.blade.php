@@ -68,7 +68,7 @@
                                     </form>
                                 </div>
                             @elseif($po->status === 'completed')
-                                <a href="{{ asset('storage/' . $po->proof_image) }}" target="_blank" class="text-rose-600 underline font-medium text-xs">
+                                <a href="{{ Storage::url($po->proof_image) }}" target="_blank" class="text-rose-600 underline font-medium text-xs">
                                     Lihat Bukti Transfer
                                 </a>
                             @else
