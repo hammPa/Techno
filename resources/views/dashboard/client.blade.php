@@ -43,7 +43,7 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Halo, {{ $user->name }} 👋</h1>
-                <p class="text-xs text-slate-500">Pantau reservasi riasan dan cari MUA favoritmu</p>
+                <p class="text-xs text-slate-500">Pantau status reservasi riasan, pembayaran, dan cari MUA favoritmu</p>
             </div>
             <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 font-bold flex items-center justify-center text-xs border border-rose-200 uppercase shadow-sm">
                 {{ substr($user->name, 0, 2) }}
@@ -68,42 +68,156 @@
             <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
                 <div>
                     <h2 class="font-bold text-base text-slate-900">Jadwal Reservasi Rias Saya</h2>
-                    <p class="text-xs text-slate-400">Daftar agenda riasan yang telah Anda ajukan</p>
+                    <p class="text-xs text-slate-400">Daftar agenda riasan dan transaksi pembayaran Anda</p>
                 </div>
                 <span class="text-xs font-bold px-2.5 py-1 bg-rose-50 text-rose-700 rounded-full">
                     {{ $myBookings->count() }} Pesanan
                 </span>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-4">
                 @forelse($myBookings as $b)
-                    <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h3 class="font-bold text-sm text-slate-800">{{ $b->service->title }}</h3>
-                                @if($b->status === 'pending')
-                                    <span class="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold">Menunggu Konfirmasi</span>
-                                @elseif($b->status === 'confirmed')
-                                    <span class="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-bold">Disetujui / Terjadwal</span>
-                                @elseif($b->status === 'completed')
-                                    <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-bold">Selesai</span>
-                                @else
-                                    <span class="text-[10px] px-2 py-0.5 bg-red-100 text-red-800 rounded-full font-bold">Dibatalkan</span>
+                    <div class="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/60">
+                            <div>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h3 class="font-bold text-sm text-slate-800">{{ $b->service->title }}</h3>
+                                    
+                                    {{-- Badge Status Booking --}}
+                                    @if($b->status === 'pending')
+                                        <span class="text-[10px] px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold">Menunggu Konfirmasi MUA</span>
+                                    @elseif($b->status === 'waiting_payment')
+                                        <span class="text-[10px] px-2.5 py-0.5 bg-rose-100 text-rose-700 rounded-full font-bold animate-pulse">Menunggu Pembayaran</span>
+                                    @elseif($b->status === 'confirmed')
+                                        <span class="text-[10px] px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-bold">Jadwal Dikonfirmasi</span>
+                                    @elseif($b->status === 'completed')
+                                        <span class="text-[10px] px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full font-bold">Selesai</span>
+                                    @else
+                                        <span class="text-[10px] px-2.5 py-0.5 bg-red-100 text-red-800 rounded-full font-bold">Dibatalkan</span>
+                                    @endif
+
+                                    {{-- Badge Status Pembayaran --}}
+                                    @if($b->payment_status === 'waiting_verification')
+                                        <span class="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-semibold">Verifikasi Admin</span>
+                                    @elseif($b->payment_status === 'dp_paid')
+                                        <span class="text-[10px] px-2 py-0.5 bg-teal-100 text-teal-800 rounded-full font-semibold">DP Terbayar</span>
+                                    @elseif($b->payment_status === 'fully_paid')
+                                        <span class="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-semibold">Lunas</span>
+                                    @elseif($b->payment_status === 'released_to_mua')
+                                        <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">Dana Masuk MUA</span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">MUA: <strong class="text-slate-700">{{ $b->mua->muaProfile->studio_name ?? $b->mua->name }}</strong></p>
+                                <p class="text-xs text-slate-600 mt-0.5">📅 {{ date('d M Y', strtotime($b->booking_date)) }} • Pukul {{ date('H:i', strtotime($b->booking_time)) }} WIB</p>
+                                <p class="text-[11px] text-slate-400 mt-1">📍 {{ $b->location_address }}</p>
+                                @if($b->notes)
+                                    <p class="text-[11px] text-slate-400 italic mt-0.5">Catatan: "{{ $b->notes }}"</p>
                                 @endif
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">MUA: <strong class="text-slate-700">{{ $b->mua->muaProfile->studio_name ?? $b->mua->name }}</strong></p>
-                            <p class="text-xs text-slate-600 mt-0.5">📅 {{ date('d M Y', strtotime($b->booking_date)) }} • Pukul {{ date('H:i', strtotime($b->booking_time)) }} WIB</p>
-                            <p class="text-[11px] text-slate-400 mt-1">📍 {{ $b->location_address }}</p>
-                            @if($b->notes)
-                                <p class="text-[11px] text-slate-400 italic mt-0.5">Catatan: "{{ $b->notes }}"</p>
-                            @endif
+
+                            <div class="text-left sm:text-right">
+                                <span class="text-[10px] uppercase font-semibold text-slate-400 block">Total Biaya</span>
+                                <span class="text-base sm:text-lg font-extrabold text-rose-600">
+                                    Rp {{ number_format($b->total_price, 0, ',', '.') }}
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="text-left sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-200">
-                            <span class="text-xs text-slate-400 block">Total Biaya</span>
-                            <span class="text-sm sm:text-base font-extrabold text-rose-600">
-                                Rp {{ number_format($b->total_price, 0, ',', '.') }}
-                            </span>
+                        <!-- Panel Aksi: Kode 4 Digit / Form Upload Pembayaran -->
+                        <div class="mt-4">
+                            @if($b->status === 'confirmed' && $b->completion_code)
+                                {{-- KODE 4 DIGIT UNTUK DIKASIH KE MUA --}}
+                                <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+                                    <div class="text-center sm:text-left">
+                                        <div class="flex items-center gap-1.5 justify-center sm:justify-start">
+                                            <span class="text-base">🔐</span>
+                                            <h4 class="text-xs font-bold text-emerald-900">Kode Penyelesaian Reservasi</h4>
+                                        </div>
+                                        <p class="text-[11px] text-emerald-700 mt-0.5">
+                                            Berikan kode 4 digit ini ke MUA <strong>hanya setelah sesi makeup selesai dilakukan</strong>.
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-emerald-300 shadow-xs">
+                                        <span class="text-xl font-black tracking-widest text-emerald-600 font-mono">
+                                            {{ $b->completion_code }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                            @elseif($b->status === 'waiting_payment' && $b->payment_status === 'unpaid')
+                                {{-- REKENING & FORM UPLOAD BUKTI TF --}}
+                                <div class="bg-white border border-rose-200 rounded-2xl p-4 shadow-xs">
+                                    <div class="mb-3 p-3 bg-rose-50/70 border border-rose-100 rounded-xl">
+                                        <h5 class="text-xs font-bold text-rose-900 mb-1">💳 Rekening Resmi Platform GlowMUA:</h5>
+                                        <div class="text-xs text-slate-600 space-y-0.5">
+                                            <p>• <strong>BCA:</strong> 8735-0921-12 (a/n GlowMUA Indonesia)</p>
+                                            <p>• <strong>DANA / GoPay:</strong> 0812-3456-7890 (a/n Admin GlowMUA)</p>
+                                        </div>
+                                        <p class="text-[10px] text-rose-500 mt-1.5">* Anda dapat membayar Uang Muka (DP minimal 50%) atau bayar Lunas (Full).</p>
+                                    </div>
+
+                                    <form action="{{ route('payments.store', $b->id) }}" method="POST" enctype="multipart/form-data" class="space-y-3">
+                                        @csrf
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Jenis Pembayaran</label>
+                                                <select name="type" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
+                                                    <option value="full">Lunas (Full) - Rp {{ number_format($b->total_price, 0, ',', '.') }}</option>
+                                                    <option value="dp">DP 50% - Rp {{ number_format($b->total_price * 0.5, 0, ',', '.') }}</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Metode / Bank</label>
+                                                <input type="text" name="bank_name" placeholder="Misal: BCA, Mandiri, DANA" required
+                                                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Pemilik Rekening</label>
+                                                <input type="text" name="sender_name" placeholder="Nama di bukti transfer" required
+                                                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nominal Ditransfer (Rp)</label>
+                                                <input type="number" name="amount" min="10000" placeholder="Contoh: 200000" required
+                                                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                                            <div class="flex-1">
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Upload Bukti Screenshot</label>
+                                                <input type="file" name="proof_image" accept="image/*" required
+                                                    class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-rose-600 transition">
+                                            </div>
+                                            <div class="sm:self-end">
+                                                <button type="submit" class="w-full sm:w-auto px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                                                    Kirim Bukti Pembayaran
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            @elseif($b->payment_status === 'waiting_verification')
+                                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl flex items-center gap-3">
+                                    <span class="text-xl">⏳</span>
+                                    <div>
+                                        <h5 class="text-xs font-bold text-amber-900">Bukti Transfer Sedang Diverifikasi</h5>
+                                        <p class="text-[11px] text-amber-700 mt-0.5">Admin GlowMUA sedang memeriksa transaksi Anda. Kode 4 digit dan konfirmasi jadwal akan terbit otomatis setelah disetujui.</p>
+                                    </div>
+                                </div>
+
+                            @elseif($b->status === 'completed')
+                                <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-2xl flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-base">🎉</span>
+                                        <span class="text-xs font-semibold text-blue-900">Layanan ini telah selesai dilaksanakan. Terima kasih telah menggunakan GlowMUA!</span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @empty

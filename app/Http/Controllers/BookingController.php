@@ -44,7 +44,7 @@ class BookingController extends Controller
     }
 
     /**
-     * Memperbarui status reservasi oleh MUA (confirmed / cancelled / completed).
+     * Konfirmasi awal dari MUA untuk menerima reservasi
      */
     public function updateStatus(Request $request, Booking $booking)
     {
@@ -53,11 +53,41 @@ class BookingController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => ['required', 'in:confirmed,cancelled,completed'],
+            'status' => ['required', 'in:waiting_payment,cancelled'],
         ]);
 
+        // Jika MUA menerima pesanan, arahkan status ke waiting_payment agar client bayar
         $booking->update(['status' => $validated['status']]);
 
         return back()->with('success', 'Status pesanan berhasil diperbarui!');
+    }
+    
+    /**
+     * Penyelesaian reservasi oleh MUA menggunakan kode 4 digit dari Klien
+     */
+    public function completeWithCode(Request $request, Booking $booking)
+    {
+        if ($booking->mua_id !== auth()->id()) {
+            abort(403, 'Akses tidak sah.');
+        }
+
+        if ($booking->status !== 'confirmed') {
+            return back()->withErrors(['code' => 'Pesanan belum dalam status siap diselesaikan.']);
+        }
+
+        $request->validate([
+            'completion_code' => ['required', 'digits:4'],
+        ]);
+
+        if ($request->completion_code !== $booking->completion_code) {
+            return back()->withErrors(['completion_code' => 'Kode verifikasi salah. Minta 4 digit kode yang valid dari klien Anda.']);
+        }
+
+        $booking->update([
+            'status' => 'completed',
+            'payment_status' => 'released_to_mua',
+        ]);
+
+        return back()->with('success', 'Pekerjaan selesai terverifikasi! Dana telah diteruskan ke akun MUA Anda.');
     }
 }

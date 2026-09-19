@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\PaymentController;
 use App\Models\User;
 
 
@@ -68,4 +69,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rute Reservasi & Jadwal Booking
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
     Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+
+    // Upload Bukti Bayar oleh Klien
+    Route::post('/bookings/{booking}/payments', [PaymentController::class, 'store'])->name('payments.store');
+
+    // Selesaikan Booking oleh MUA dengan Kode 4 Digit
+    Route::post('/bookings/{booking}/complete', [BookingController::class, 'completeWithCode'])->name('bookings.complete');
+
+    // Verifikasi Pembayaran oleh Admin
+    Route::patch('/admin/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('admin.payments.verify');
 });

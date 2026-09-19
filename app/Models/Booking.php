@@ -18,6 +18,8 @@ class Booking extends Model
         'location_address',
         'total_price',
         'status',
+        'completion_code',
+        'payment_status',
         'notes',
     ];
 
@@ -34,5 +36,16 @@ class Booking extends Model
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    // Mengambil pembayaran terakhir yang diunggah
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
     }
 }

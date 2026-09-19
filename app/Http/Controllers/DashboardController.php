@@ -7,6 +7,7 @@ use App\Models\Service;
 use App\Models\Portfolio;
 use App\Models\MuaProfile;
 use App\Models\Booking;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -15,7 +16,29 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // JIKA YANG LOGIN MUA
+        // 1. JIKA YANG LOGIN ADMIN
+        if ($user->role === 'admin') {
+            $payments = Payment::with(['user', 'booking.mua', 'booking.service'])
+                ->latest()
+                ->get();
+
+            // Ambil semua MUA beserta profil dan jumlah layanannya
+            $muaUsers = User::where('role', 'mua')
+                ->with(['muaProfile', 'services'])
+                ->withCount('muaBookings')
+                ->latest()
+                ->get();
+
+            // Ambil semua Klien beserta total pesanannya
+            $clientUsers = User::where('role', 'client')
+                ->withCount('clientBookings')
+                ->latest()
+                ->get();
+
+            return view('dashboard.admin', compact('user', 'payments', 'muaUsers', 'clientUsers'));
+        }
+
+        // 2. JIKA YANG LOGIN MUA
         if ($user->role === 'mua') {
             $profile = MuaProfile::firstOrCreate(
                 ['user_id' => $user->id],
@@ -33,7 +56,7 @@ class DashboardController extends Controller
             return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios', 'bookings'));
         }
 
-        // JIKA YANG LOGIN KLIEN
+        // 3. JIKA YANG LOGIN KLIEN
         $muaList = User::where('role', 'mua')
             ->whereNotNull('email_verified_at')
             ->with(['muaProfile', 'services', 'portfolios'])
@@ -83,7 +106,7 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'image_url' => ['required', 'url'], // untuk tahap dev bisa pakai URL foto Unsplash / web
+            'image_url' => ['required', 'url'],
         ]);
 
         auth()->user()->portfolios()->create($validated);
