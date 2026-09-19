@@ -70,7 +70,6 @@
                     <div class="bg-white rounded-3xl border border-rose-100 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between">
                         <div>
                             <!-- Foto Portofolio -->
-                            <!-- Foto Portofolio -->
                             <div class="h-48 bg-rose-50 relative overflow-hidden flex items-center justify-center">
                                 @if($mua->portfolios->isNotEmpty() && $mua->portfolios->first()->image_url)
                                     @php
