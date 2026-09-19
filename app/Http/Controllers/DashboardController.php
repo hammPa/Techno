@@ -9,6 +9,7 @@ use App\Models\MuaProfile;
 use App\Models\Booking;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -106,10 +107,16 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'image_url' => ['required', 'url'],
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:3072'], // Maks 3MB
         ]);
 
-        auth()->user()->portfolios()->create($validated);
+        // Simpan file ke folder storage/app/public/portfolios
+        $path = $request->file('image')->store('portfolios', 'public');
+
+        auth()->user()->portfolios()->create([
+            'title' => $validated['title'],
+            'image_url' => $path, // Menyimpan relative path file di storage
+        ]);
 
         return back()->with('success', 'Foto portofolio rias berhasil ditambahkan!');
     }
@@ -120,6 +127,12 @@ class DashboardController extends Controller
         if ($portfolio->user_id !== auth()->id()) {
             abort(403);
         }
+        
+        // Hapus file fisik dari storage jika file ada
+        if ($portfolio->image_url && Storage::disk('public')->exists($portfolio->image_url)) {
+            Storage::disk('public')->delete($portfolio->image_url);
+        }
+
         $portfolio->delete();
         return back()->with('success', 'Portofolio berhasil dihapus.');
     }

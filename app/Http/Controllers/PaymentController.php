@@ -64,15 +64,25 @@ class PaymentController extends Controller
         $payment->update(['status' => 'verified']);
         $booking = $payment->booking;
 
-        // Generate kode 4 digit acak saat pembayaran tervalidasi
+        if ($payment->type === 'dp') {
+            // Pembayaran DP disetujui, jadwal dikonfirmasi tapi belum keluar kode 4 digit
+            $booking->update([
+                'status' => 'confirmed',
+                'payment_status' => 'dp_paid',
+            ]);
+
+            return back()->with('success', 'Pembayaran DP berhasil diverifikasi. Klien perlu melunasi sisa tagihan untuk mendapatkan kode penyelesaian.');
+        }
+
+        // Jika pembayaran tipe FULL atau PELUNASAN, generate kode 4 digit
         $code = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
 
         $booking->update([
             'status' => 'confirmed',
             'completion_code' => $code,
-            'payment_status' => $payment->type === 'dp' ? 'dp_paid' : 'fully_paid',
+            'payment_status' => 'fully_paid',
         ]);
 
-        return back()->with('success', 'Pembayaran berhasil diverifikasi. Kode penyelesaian telah diterbitkan ke Klien.');
+        return back()->with('success', 'Pembayaran lunas berhasil diverifikasi. Kode 4 digit telah dirilis ke Klien.');
     }
 }

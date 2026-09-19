@@ -75,6 +75,11 @@ class BookingController extends Controller
             return back()->withErrors(['code' => 'Pesanan belum dalam status siap diselesaikan.']);
         }
 
+        // Cegah jika klien belum melunasi sisa pembayaran
+        if ($booking->payment_status !== 'fully_paid') {
+            return back()->withErrors(['code' => 'Pesanan belum lunas. Klien harus menyelesaikan sisa pelunasan di aplikasi terlebih dahulu.']);
+        }
+
         $request->validate([
             'completion_code' => ['required', 'digits:4'],
         ]);

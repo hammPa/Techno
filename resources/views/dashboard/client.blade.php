@@ -123,10 +123,10 @@
                             </div>
                         </div>
 
-                        <!-- Panel Aksi: Kode 4 Digit / Form Upload Pembayaran -->
+                        <!-- Panel Aksi: Kode 4 Digit / Form Upload Pembayaran / Pelunasan -->
                         <div class="mt-4">
-                            @if($b->status === 'confirmed' && $b->completion_code)
-                                {{-- KODE 4 DIGIT UNTUK DIKASIH KE MUA --}}
+                            {{-- 1. KODE 4 DIGIT MUNCUL JIKA SUDAH LUNAS --}}
+                            @if($b->status === 'confirmed' && $b->payment_status === 'fully_paid' && $b->completion_code)
                                 <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
                                     <div class="text-center sm:text-left">
                                         <div class="flex items-center gap-1.5 justify-center sm:justify-start">
@@ -134,7 +134,7 @@
                                             <h4 class="text-xs font-bold text-emerald-900">Kode Penyelesaian Reservasi</h4>
                                         </div>
                                         <p class="text-[11px] text-emerald-700 mt-0.5">
-                                            Berikan kode 4 digit ini ke MUA <strong>hanya setelah sesi makeup selesai dilakukan</strong>.
+                                            Tagihan telah lunas! Berikan kode 4 digit ini ke MUA <strong>hanya setelah sesi makeup selesai</strong>.
                                         </p>
                                     </div>
                                     <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-emerald-300 shadow-xs">
@@ -144,8 +144,58 @@
                                     </div>
                                 </div>
 
+                            {{-- 2. FORM PELUNASAN JIKA SUDAH DP --}}
+                            @elseif($b->status === 'confirmed' && $b->payment_status === 'dp_paid')
+                                @php
+                                    $totalPaid = $b->payments()->where('status', 'verified')->sum('amount');
+                                    $remaining = $b->total_price - $totalPaid;
+                                @endphp
+
+                                <div class="bg-amber-50/70 border border-amber-200 rounded-2xl p-4 shadow-xs">
+                                    <div class="flex items-center justify-between mb-3 border-b border-amber-200/60 pb-2">
+                                        <div>
+                                            <h5 class="text-xs font-bold text-amber-900">Status: DP Telah Diverifikasi</h5>
+                                            <p class="text-[11px] text-amber-700">Silakan transfer sisa pelunasan sebesar <strong>Rp {{ number_format($remaining, 0, ',', '.') }}</strong> agar kode verifikasi penyelesaian terbit.</p>
+                                        </div>
+                                        <span class="text-xs font-bold px-2.5 py-1 bg-amber-200 text-amber-900 rounded-full">Sisa Tagihan</span>
+                                    </div>
+
+                                    <form action="{{ route('payments.store', $b->id) }}" method="POST" enctype="multipart/form-data" class="space-y-3"
+                                        onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.innerText = 'Mengunggah...';">
+                                        @csrf
+                                        <input type="hidden" name="type" value="full">
+                                        <input type="hidden" name="amount" value="{{ $remaining }}">
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Bank / E-Wallet Pengirim</label>
+                                                <input type="text" name="bank_name" placeholder="Misal: BCA, Mandiri, DANA" required
+                                                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Pemilik Rekening Pengirim</label>
+                                                <input type="text" name="sender_name" placeholder="Nama di bukti transfer" required
+                                                    class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                                            <div class="flex-1">
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Upload Bukti Screenshot Pelunasan</label>
+                                                <input type="file" name="proof_image" accept="image/*" required
+                                                    class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-rose-600 transition">
+                                            </div>
+                                            <div class="sm:self-end">
+                                                <button type="submit" class="w-full sm:w-auto px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold shadow-sm transition">
+                                                    Kirim Bukti Pelunasan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            {{-- 3. FORM PEMBAYARAN AWAL (DP / FULL) --}}
                             @elseif($b->status === 'waiting_payment' && $b->payment_status === 'unpaid')
-                                {{-- REKENING & FORM UPLOAD BUKTI TF --}}
                                 <div class="bg-white border border-rose-200 rounded-2xl p-4 shadow-xs">
                                     <div class="mb-3 p-3 bg-rose-50/70 border border-rose-100 rounded-xl">
                                         <h5 class="text-xs font-bold text-rose-900 mb-1">💳 Rekening Resmi Platform GlowMUA:</h5>
@@ -153,10 +203,11 @@
                                             <p>• <strong>BCA:</strong> 8735-0921-12 (a/n GlowMUA Indonesia)</p>
                                             <p>• <strong>DANA / GoPay:</strong> 0812-3456-7890 (a/n Admin GlowMUA)</p>
                                         </div>
-                                        <p class="text-[10px] text-rose-500 mt-1.5">* Anda dapat membayar Uang Muka (DP minimal 50%) atau bayar Lunas (Full).</p>
+                                        <p class="text-[10px] text-rose-500 mt-1.5">* Pilih bayar Lunas (Full) atau DP 50% untuk booking jadwal.</p>
                                     </div>
 
-                                    <form action="{{ route('payments.store', $b->id) }}" method="POST" enctype="multipart/form-data" class="space-y-3">
+                                    <form action="{{ route('payments.store', $b->id) }}" method="POST" enctype="multipart/form-data" class="space-y-3"
+                                        onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.innerText = 'Mengunggah...';">
                                         @csrf
                                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                             <div>
@@ -166,19 +217,16 @@
                                                     <option value="dp">DP 50% - Rp {{ number_format($b->total_price * 0.5, 0, ',', '.') }}</option>
                                                 </select>
                                             </div>
-
                                             <div>
                                                 <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Metode / Bank</label>
                                                 <input type="text" name="bank_name" placeholder="Misal: BCA, Mandiri, DANA" required
                                                     class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
                                             </div>
-
                                             <div>
                                                 <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nama Pemilik Rekening</label>
                                                 <input type="text" name="sender_name" placeholder="Nama di bukti transfer" required
                                                     class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:border-rose-500 focus:outline-none">
                                             </div>
-
                                             <div>
                                                 <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nominal Ditransfer (Rp)</label>
                                                 <input type="number" name="amount" min="10000" placeholder="Contoh: 200000" required
@@ -201,15 +249,17 @@
                                     </form>
                                 </div>
 
+                            {{-- 4. BUKTI SEDANG DIVERIFIKASI --}}
                             @elseif($b->payment_status === 'waiting_verification')
                                 <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-2xl flex items-center gap-3">
                                     <span class="text-xl">⏳</span>
                                     <div>
                                         <h5 class="text-xs font-bold text-amber-900">Bukti Transfer Sedang Diverifikasi</h5>
-                                        <p class="text-[11px] text-amber-700 mt-0.5">Admin GlowMUA sedang memeriksa transaksi Anda. Kode 4 digit dan konfirmasi jadwal akan terbit otomatis setelah disetujui.</p>
+                                        <p class="text-[11px] text-amber-700 mt-0.5">Admin GlowMUA sedang memeriksa transaksi Anda. Status akan terupdate otomatis setelah disetujui.</p>
                                     </div>
                                 </div>
 
+                            {{-- 5. ORDER SELESAI --}}
                             @elseif($b->status === 'completed')
                                 <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-2xl flex items-center justify-between">
                                     <div class="flex items-center gap-2">
@@ -219,7 +269,6 @@
                                 </div>
                             @endif
                         </div>
-                    </div>
                 @empty
                     <div class="text-center py-8 text-slate-400 text-xs">
                         Belum ada reservasi aktif. Pilih MUA di bawah untuk mulai memesan jadwal rias.
@@ -243,7 +292,11 @@
                     <div>
                         <div class="h-44 bg-rose-50 relative overflow-hidden flex items-center justify-center">
                             @if($mua->portfolios->isNotEmpty() && $mua->portfolios->first()->image_url)
-                                <img src="{{ $mua->portfolios->first()->image_url }}" alt="{{ $mua->name }}" class="w-full h-full object-cover">
+                                @php
+                                    $firstImg = $mua->portfolios->first()->image_url;
+                                    $coverSrc = str_starts_with($firstImg, 'http') ? $firstImg : asset('storage/' . $firstImg);
+                                @endphp
+                                <img src="{{ $coverSrc }}" alt="{{ $mua->name }}" class="w-full h-full object-cover">
                             @else
                                 <span class="text-4xl">🪞</span>
                             @endif

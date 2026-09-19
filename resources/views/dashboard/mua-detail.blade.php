@@ -21,15 +21,17 @@
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold text-slate-900">{{ $mua->muaProfile->studio_name ?? $mua->name }}</h1>
                     <p class="text-xs text-slate-500 mt-0.5">📍 {{ $mua->muaProfile->city ?? 'Padang' }} • Artisan: {{ $mua->name }}</p>
-                    @if($mua->muaProfile->instagram_username)
-                        <span class="text-xs text-rose-600 font-medium mt-1 block">📸 @ {{ $mua->muaProfile->instagram_username }}</span>
+                    @if($mua->muaProfile && $mua->muaProfile->instagram_username)
+                        <a href="https://instagram.com/{{ ltrim($mua->muaProfile->instagram_username, '@') }}" target="_blank" class="text-xs text-rose-600 hover:underline font-medium mt-1 inline-block">
+                            📸 @<span>{{ ltrim($mua->muaProfile->instagram_username, '@') }}</span>
+                        </a>
                     @endif
                 </div>
             </div>
 
             <!-- Tombol WhatsApp Langsung -->
             @php
-                $cleanPhone = preg_replace('/[^0-9]/', '', $mua->phone);
+                $cleanPhone = preg_replace('/[^0-9]/', '', (string) $mua->phone);
                 if (str_starts_with($cleanPhone, '0')) {
                     $cleanPhone = '62' . substr($cleanPhone, 1);
                 }
@@ -46,8 +48,11 @@
             <h2 class="font-bold text-base text-slate-900 mb-4">Galeri Portofolio Hasil Rias</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 @forelse($mua->portfolios as $porto)
+                    @php
+                        $imgSrc = str_starts_with($porto->image_url, 'http') ? $porto->image_url : asset('storage/' . $porto->image_url);
+                    @endphp
                     <div class="rounded-2xl overflow-hidden border border-slate-100 group relative">
-                        <img src="{{ $porto->image_url }}" alt="{{ $porto->title }}" class="w-full h-44 object-cover group-hover:scale-105 transition duration-300">
+                        <img src="{{ $imgSrc }}" alt="{{ $porto->title }}" class="w-full h-44 object-cover group-hover:scale-105 transition duration-300">
                         <span class="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[11px] px-2 py-1 rounded-lg truncate">
                             {{ $porto->title }}
                         </span>
