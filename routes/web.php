@@ -7,6 +7,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PayoutController;
 use App\Models\User;
 
 
@@ -78,4 +79,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Verifikasi Pembayaran oleh Admin
     Route::patch('/admin/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('admin.payments.verify');
+
+    // Tambahkan route reject ini:
+    Route::patch('/admin/payments/{payment}/reject', [PaymentController::class, 'reject'])->name('admin.payments.reject');
+
+
+
+
+    // Route Penarikan untuk MUA
+    Route::post('/mua/payouts', [PayoutController::class, 'store'])->name('mua.payouts.store');
+
+    // Route Verifikasi Penarikan untuk Admin
+    Route::patch('/admin/payouts/{payout}/approve', [PayoutController::class, 'approve'])->name('admin.payouts.approve');
+    Route::patch('/admin/payouts/{payout}/reject', [PayoutController::class, 'reject'])->name('admin.payouts.reject');
 });

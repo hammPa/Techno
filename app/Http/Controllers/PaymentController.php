@@ -85,4 +85,44 @@ class PaymentController extends Controller
 
         return back()->with('success', 'Pembayaran lunas berhasil diverifikasi. Kode 4 digit telah dirilis ke Klien.');
     }
+
+    public function reject(Request $request, Payment $payment)
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Akses terbatas untuk admin.');
+        }
+
+        $validated = $request->validate([
+            'admin_notes' => ['required', 'string', 'max:255'],
+        ]);
+
+        // Hapus file fisik bukti transfer yang ditolak
+        if ($payment->proof_image && \Illuminate\Support\Facades\Storage::disk('public')->exists($payment->proof_image)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($payment->proof_image);
+        }
+
+        $payment->update([
+            'status' => 'rejected',
+            'admin_notes' => $validated['admin_notes'],
+        ]);
+
+        $booking = $payment->booking;
+
+        // Cek apakah klien sebelumnya sudah pernah membayar DP yang valid
+        $hasVerifiedDp = $booking->payments()->where('type', 'dp')->where('status', 'verified')->exists();
+
+        if ($hasVerifiedDp) {
+            $booking->update([
+                'payment_status' => 'dp_paid',
+                'status' => 'confirmed',
+            ]);
+        } else {
+            $booking->update([
+                'payment_status' => 'unpaid',
+                'status' => 'waiting_payment',
+            ]);
+        }
+
+        return back()->with('success', 'Pembayaran ditolak dan alasan berhasil dicatat.');
+    }
 }

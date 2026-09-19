@@ -36,7 +36,10 @@ class DashboardController extends Controller
                 ->latest()
                 ->get();
 
-            return view('dashboard.admin', compact('user', 'payments', 'muaUsers', 'clientUsers'));
+            $payouts = \App\Models\Payout::with('user')
+                ->latest()->get();
+
+            return view('dashboard.admin', compact('user', 'payments', 'muaUsers', 'clientUsers', 'payouts'));
         }
 
         // 2. JIKA YANG LOGIN MUA
@@ -54,7 +57,9 @@ class DashboardController extends Controller
                 ->latest()
                 ->get();
 
-            return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios', 'bookings'));
+            $myPayouts = $user->payouts()->latest()->get();
+
+            return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios', 'bookings', 'myPayouts'));
         }
 
         // 3. JIKA YANG LOGIN KLIEN

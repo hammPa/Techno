@@ -77,4 +77,28 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class, 'mua_id');
     }
+
+
+    
+    // 2 ini payout
+    public function payouts()
+    {
+        return $this->hasMany(Payout::class);
+    }
+
+    // Menghitung sisa saldo bersih MUA yang bisa ditarik
+    public function getAvailableBalanceAttribute()
+    {
+        // Total penghasilan dari booking yang sudah 'completed'
+        $totalEarned = $this->muaBookings()
+            ->where('status', 'completed')
+            ->sum('total_price');
+
+        // Total dana yang sudah ditarik (completed) atau sedang proses (pending)
+        $totalWithdrawn = $this->payouts()
+            ->whereIn('status', ['pending', 'completed'])
+            ->sum('amount');
+
+        return max(0, $totalEarned - $totalWithdrawn);
+    }
 }

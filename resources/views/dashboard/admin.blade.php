@@ -40,13 +40,23 @@
         @endif
 
         <!-- Card Statistik yang Sekaligus Berfungsi Sebagai Tombol Pindah Tab -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <button type="button" onclick="switchTab('payments')" id="card-payments"
                 class="tab-card p-4 rounded-2xl border border-slate-200 text-left transition flex items-center gap-3 bg-white ring-2 ring-rose-500 shadow-sm">
                 <div class="p-3 bg-rose-50 text-rose-600 rounded-xl text-xl">💳</div>
                 <div>
-                    <span class="text-[11px] text-slate-400 font-medium block">Verifikasi Transfer</span>
-                    <h3 class="text-lg font-bold text-slate-900">{{ $payments->where('status', 'pending')->count() }} Pembayaran</h3>
+                    <span class="text-[11px] text-slate-400 font-medium block">Verifikasi Masuk</span>
+                    <h3 class="text-lg font-bold text-slate-900">{{ $payments->where('status', 'pending')->count() }} Transfer</h3>
+                </div>
+            </button>
+
+            <!-- KARTU BARU: PENCAIRAN SALDO MUA -->
+            <button type="button" onclick="switchTab('payouts')" id="card-payouts"
+                class="tab-card p-4 rounded-2xl border border-slate-200 text-left transition flex items-center gap-3 bg-white/70 hover:bg-white">
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl text-xl">💸</div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-medium block">Pencairan Mitra</span>
+                    <h3 class="text-lg font-bold text-slate-900">{{ $payouts->where('status', 'pending')->count() }} Antrean</h3>
                 </div>
             </button>
 
@@ -54,7 +64,7 @@
                 class="tab-card p-4 rounded-2xl border border-slate-200 text-left transition flex items-center gap-3 bg-white/70 hover:bg-white">
                 <div class="p-3 bg-pink-50 text-pink-600 rounded-xl text-xl">💄</div>
                 <div>
-                    <span class="text-[11px] text-slate-400 font-medium block">Mitra Makeup Artist</span>
+                    <span class="text-[11px] text-slate-400 font-medium block">Mitra MUA</span>
                     <h3 class="text-lg font-bold text-slate-900">{{ $muaUsers->count() }} Terdaftar</h3>
                 </div>
             </button>
@@ -83,6 +93,10 @@
                 class="tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-200/60">
                 👥 Daftar Klien ({{ $clientUsers->count() }})
             </button>
+            <button type="button" onclick="switchTab('payouts')" id="btn-payouts"
+                class="tab-btn px-4 py-2 rounded-xl text-xs font-semibold transition text-slate-600 hover:bg-slate-200/60">
+                💸 Pencairan Dana MUA ({{ $payouts->where('status', 'pending')->count() }})
+            </button>
         </div>
 
         <!-- Konten 1: Verifikasi Pembayaran -->
@@ -98,6 +112,10 @@
         <!-- Konten 3: Data Pengguna Klien -->
         <div id="content-clients" class="tab-content hidden">
             @include('partials.admin.clients')
+        </div>
+
+        <div id="content-payouts" class="tab-content hidden">
+            @include('partials.admin.payouts')
         </div>
     </main>
 

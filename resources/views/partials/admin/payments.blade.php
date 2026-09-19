@@ -47,10 +47,14 @@
                             <div class="text-[11px] text-slate-400">Via: {{ $pm->bank_name }}</div>
                         </td>
                         <td class="p-4 text-center">
-                            <a href="{{ asset('storage/' . $pm->proof_image) }}" target="_blank" class="inline-block group relative">
-                                <img src="{{ asset('storage/' . $pm->proof_image) }}" alt="Bukti Transfer" class="w-12 h-12 rounded-lg object-cover border border-slate-200 group-hover:scale-105 transition shadow-xs mx-auto">
-                                <span class="block text-[9px] text-rose-600 mt-0.5 underline">Lihat Foto</span>
-                            </a>
+                            @if($pm->proof_image)
+                                <a href="{{ asset('storage/' . $pm->proof_image) }}" target="_blank" class="inline-block group relative">
+                                    <img src="{{ asset('storage/' . $pm->proof_image) }}" alt="Bukti Transfer" class="w-12 h-12 rounded-lg object-cover border border-slate-200 group-hover:scale-105 transition shadow-xs mx-auto">
+                                    <span class="block text-[9px] text-rose-600 mt-0.5 underline">Lihat Foto</span>
+                                </a>
+                            @else
+                                <span class="text-slate-400 text-[10px] italic">Tidak ada foto</span>
+                            @endif
                         </td>
                         <td class="p-4">
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase
@@ -60,15 +64,34 @@
                         </td>
                         <td class="p-4 text-right">
                             @if($pm->status === 'pending')
-                                <form action="{{ route('admin.payments.verify', $pm->id) }}" method="POST" onsubmit="return confirm('Konfirmasi bahwa pembayaran ini sudah valid masuk rekening?')">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xs transition">
-                                        ✓ Setujui
-                                    </button>
-                                </form>
-                            @else
-                                <span class="text-slate-400 text-xs italic">Selesai Diverifikasi</span>
+                                <div class="flex items-center justify-end gap-2">
+                                    {{-- Tombol Setujui --}}
+                                    <form action="{{ route('admin.payments.verify', $pm->id) }}" method="POST" onsubmit="return confirm('Konfirmasi bahwa dana transfer ini sudah valid dan masuk rekening?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-xs transition whitespace-nowrap">
+                                            ✓ Setujui
+                                        </button>
+                                    </form>
+
+                                    {{-- Tombol Tolak dengan Prompt Alasan --}}
+                                    <form action="{{ route('admin.payments.reject', $pm->id) }}" method="POST"
+                                          onsubmit="const reason = prompt('Masukkan alasan penolakan bukti transfer ini:'); if(!reason) return false; this.querySelector('input[name=admin_notes]').value = reason; return true;">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="admin_notes" value="">
+                                        <button type="submit" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition whitespace-nowrap">
+                                            ✕ Tolak
+                                        </button>
+                                    </form>
+                                </div>
+                            @elseif($pm->status === 'verified')
+                                <span class="text-emerald-600 text-xs font-semibold">✓ Diverifikasi</span>
+                            @elseif($pm->status === 'rejected')
+                                <div class="text-right">
+                                    <span class="text-rose-600 text-xs font-semibold block">✕ Ditolak</span>
+                                    <span class="text-[10px] text-slate-400 italic">"{{ $pm->admin_notes }}"</span>
+                                </div>
                             @endif
                         </td>
                     </tr>
