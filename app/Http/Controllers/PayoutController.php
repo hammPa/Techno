@@ -59,7 +59,7 @@ class PayoutController extends Controller
             'proof_image' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:3072'],
         ]);
 
-        $path = $request->file('proof_image')->store('payout_proofs', 'public');
+        $path = $request->file('proof_image')->store('payout_proofs');
 
         $payout->update([
             'status' => 'completed',

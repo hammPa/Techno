@@ -115,8 +115,8 @@ class DashboardController extends Controller
             'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:3072'], // Maks 3MB
         ]);
 
-        // Simpan file ke folder storage/app/public/portfolios
-        $path = $request->file('image')->store('portfolios', 'public');
+        // Simpan file ke folder storage/app/public/portfolios, karena ga ada arg public dia up ke default, karna skrg pakai supabase dia kesana
+        $path = $request->file('image')->store('portfolios');
 
         auth()->user()->portfolios()->create([
             'title' => $validated['title'],
@@ -134,8 +134,8 @@ class DashboardController extends Controller
         }
         
         // Hapus file fisik dari storage jika file ada
-        if ($portfolio->image_url && Storage::disk('public')->exists($portfolio->image_url)) {
-            Storage::disk('public')->delete($portfolio->image_url);
+        if ($portfolio->image_url && Storage::exists($portfolio->image_url)) {
+            Storage::delete($portfolio->image_url);
         }
 
         $portfolio->delete();

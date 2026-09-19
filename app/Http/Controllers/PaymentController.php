@@ -32,7 +32,7 @@ class PaymentController extends Controller
             'proof_image' => 'required|image|mimes:jpeg,png,jpg|max:3072',
         ]);
 
-        $path = $request->file('proof_image')->store('payment_proofs', 'public');
+        $path = $request->file('proof_image')->store('payment_proofs');
 
         Payment::create([
             'booking_id' => $booking->id,
@@ -97,8 +97,8 @@ class PaymentController extends Controller
         ]);
 
         // Hapus file fisik bukti transfer yang ditolak
-        if ($payment->proof_image && \Illuminate\Support\Facades\Storage::disk('public')->exists($payment->proof_image)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($payment->proof_image);
+        if ($payment->proof_image && Storage::exists($payment->proof_image)) {
+            Storage::delete($payment->proof_image);
         }
 
         $payment->update([
