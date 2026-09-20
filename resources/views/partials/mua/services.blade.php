@@ -72,17 +72,27 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
+                <div class="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
                     <span class="font-extrabold text-sm sm:text-base text-rose-600">
                         Rp {{ number_format($item->price, 0, ',', '.') }}
                     </span>
-                    <form action="{{ route('services.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus paket riasan ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-xs px-2.5 py-1 text-red-500 hover:bg-red-50 rounded-lg transition font-semibold">
-                            Hapus
-                        </button>
-                    </form>
+                    
+                    <div class="flex items-center gap-1">
+                        <!-- Link ke Halaman Edit Terpisah -->
+                        <a href="{{ route('services.edit', $item->id) }}" 
+                        class="text-xs px-2.5 py-1 text-amber-600 hover:bg-amber-50 rounded-lg transition font-semibold">
+                            Edit
+                        </a>
+
+                        <!-- Tombol Hapus -->
+                        <form action="{{ route('services.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus paket riasan ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-xs px-2.5 py-1 text-red-500 hover:bg-red-50 rounded-lg transition font-semibold">
+                                Hapus
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         @empty

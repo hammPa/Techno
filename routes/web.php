@@ -63,6 +63,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/mua/portfolio/{portfolio}', [DashboardController::class, 'destroyPortfolio'])->name('mua.portfolio.destroy');
 
     Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+    Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+    Route::patch('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
     Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
 
     // Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
