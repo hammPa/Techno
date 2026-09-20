@@ -57,41 +57,54 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // MUA Actions
-    Route::post('/mua/profile', [DashboardController::class, 'updateProfile'])->name('mua.profile.update');
-    Route::post('/mua/portfolio', [DashboardController::class, 'storePortfolio'])->name('mua.portfolio.store');
-    Route::delete('/mua/portfolio/{portfolio}', [DashboardController::class, 'destroyPortfolio'])->name('mua.portfolio.destroy');
 
-    Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
-    Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
-    Route::patch('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
-    Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+    // KHUSUS MUA
+    Route::middleware('role:mua')->group(function () {
+        Route::post('/mua/profile', [DashboardController::class, 'updateProfile'])->name('mua.profile.update');
+        Route::post('/mua/portfolio', [DashboardController::class, 'storePortfolio'])->name('mua.portfolio.store');
+        Route::delete('/mua/portfolio/{portfolio}', [DashboardController::class, 'destroyPortfolio'])->name('mua.portfolio.destroy');
 
-    // Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+        Route::post('/services', [ServiceController::class, 'store'])->name('services.store');
+        Route::get('/services/{service}/edit', [ServiceController::class, 'edit'])->name('services.edit');
+        Route::patch('/services/{service}', [ServiceController::class, 'update'])->name('services.update');
+        Route::delete('/services/{service}', [ServiceController::class, 'destroy'])->name('services.destroy');
+    
+        // Selesaikan Booking oleh MUA dengan Kode 4 Digit
+        Route::post('/bookings/{booking}/complete', [BookingController::class, 'completeWithCode'])->name('bookings.complete');
 
-    // Rute Reservasi & Jadwal Booking
-    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-    Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+        // Route Penarikan untuk MUA
+        Route::post('/mua/payouts', [PayoutController::class, 'store'])->name('mua.payouts.store');
+    });
 
-    // Upload Bukti Bayar oleh Klien
-    Route::post('/bookings/{booking}/payments', [PaymentController::class, 'store'])->name('payments.store');
+    // KHUSUS CLIENT
+    Route::middleware('role:client')->group(function () {
+        // Rute Reservasi
+        Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
-    // Selesaikan Booking oleh MUA dengan Kode 4 Digit
-    Route::post('/bookings/{booking}/complete', [BookingController::class, 'completeWithCode'])->name('bookings.complete');
+        // Upload Bukti Bayar oleh Klien
+        Route::post('/bookings/{booking}/payments', [PaymentController::class, 'store'])->name('payments.store');
+    });
 
-    // Verifikasi Pembayaran oleh Admin
-    Route::patch('/admin/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('admin.payments.verify');
-
-    // Tambahkan route reject ini:
-    Route::patch('/admin/payments/{payment}/reject', [PaymentController::class, 'reject'])->name('admin.payments.reject');
-
-
+    // KHUSUS MUA DAN CLIENT
+    Route::middleware('role:mua,client')->group(function () {
+        // Jadwal Booking
+        Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+    });
 
 
-    // Route Penarikan untuk MUA
-    Route::post('/mua/payouts', [PayoutController::class, 'store'])->name('mua.payouts.store');
+    // KHUSUS ADMIN
+    Route::middleware('role:admin')->group(function () {
+        // Verifikasi Pembayaran oleh Admin
+        Route::patch('/admin/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('admin.payments.verify');
+    
+        // Tambahkan route reject ini:
+        Route::patch('/admin/payments/{payment}/reject', [PaymentController::class, 'reject'])->name('admin.payments.reject');
+        
+        // Route Verifikasi Penarikan untuk Admin
+        Route::patch('/admin/payouts/{payout}/approve', [PayoutController::class, 'approve'])->name('admin.payouts.approve');
+        Route::patch('/admin/payouts/{payout}/reject', [PayoutController::class, 'reject'])->name('admin.payouts.reject');
+    });
 
-    // Route Verifikasi Penarikan untuk Admin
-    Route::patch('/admin/payouts/{payout}/approve', [PayoutController::class, 'approve'])->name('admin.payouts.approve');
-    Route::patch('/admin/payouts/{payout}/reject', [PayoutController::class, 'reject'])->name('admin.payouts.reject');
+
+
 });
