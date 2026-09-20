@@ -39,6 +39,13 @@
                         @if($bk->notes)
                             <p class="text-[11px] text-slate-400 italic mt-0.5">Catatan: "{{ $bk->notes }}"</p>
                         @endif
+
+                        {{-- Keterangan Alasan jika Dibatalkan --}}
+                        @if($bk->status === 'cancelled' && $bk->cancellation_reason)
+                            <div class="mt-2 text-[11px] text-rose-700 bg-rose-50 border border-rose-200/70 px-3 py-1.5 rounded-xl inline-block">
+                                <strong>Alasan Batal:</strong> {{ $bk->cancellation_reason }}
+                            </div>
+                        @endif
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-200">
@@ -55,20 +62,29 @@
                                         Terima Jadwal
                                     </button>
                                 </form>
-                                <form action="{{ route('bookings.updateStatus', $bk->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="cancelled">
-                                    <button type="submit" class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl text-xs font-semibold transition">
-                                        Tolak
-                                    </button>
-                                </form>
+
+                                {{-- Tolak Pesanan menggunakan Modal Pembatalan --}}
+                                <button type="button" 
+                                    onclick="openCancelModal('{{ $bk->id }}')" 
+                                    class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl text-xs font-semibold transition">
+                                    Tolak
+                                </button>
                             </div>
 
                         @elseif($bk->status === 'waiting_payment')
-                            <span class="text-xs text-amber-700 bg-amber-100/70 border border-amber-200 px-3 py-1.5 rounded-xl font-medium">
-                                Menunggu Bukti Transfer Klien
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-amber-700 bg-amber-100/70 border border-amber-200 px-3 py-1.5 rounded-xl font-medium">
+                                    Menunggu Bayar
+                                </span>
+                                {{-- Jika Klien tak kunjung bayar, MUA bisa batalkan pesanan unpaid --}}
+                                @if($bk->payment_status === 'unpaid')
+                                    <button type="button" 
+                                        onclick="openCancelModal('{{ $bk->id }}')" 
+                                        class="px-3 py-1.5 border border-rose-300 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-semibold transition">
+                                        Batalkan
+                                    </button>
+                                @endif
+                            </div>
 
                         @elseif($bk->status === 'confirmed')
                             {{-- FORM VALIDASI KODE 4 DIGIT DARI KLIEN --}}

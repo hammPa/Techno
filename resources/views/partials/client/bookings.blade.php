@@ -47,13 +47,31 @@
                         @if($b->notes)
                             <p class="text-[11px] text-slate-400 italic mt-0.5">Catatan: "{{ $b->notes }}"</p>
                         @endif
+
+                        {{-- Keterangan Alasan jika Dibatalkan --}}
+                        @if($b->status === 'cancelled' && $b->cancellation_reason)
+                            <div class="mt-2 text-[11px] text-rose-700 bg-rose-50 border border-rose-200/70 px-3 py-1.5 rounded-xl inline-block">
+                                <strong>Alasan Batal:</strong> {{ $b->cancellation_reason }}
+                            </div>
+                        @endif
                     </div>
 
-                    <div class="text-left sm:text-right">
-                        <span class="text-[10px] uppercase font-semibold text-slate-400 block">Total Biaya</span>
-                        <span class="text-base sm:text-lg font-extrabold text-rose-600">
-                            Rp {{ number_format($b->total_price, 0, ',', '.') }}
-                        </span>
+                    <div class="flex flex-col sm:items-end justify-between gap-2">
+                        <div class="text-left sm:text-right">
+                            <span class="text-[10px] uppercase font-semibold text-slate-400 block">Total Biaya</span>
+                            <span class="text-base sm:text-lg font-extrabold text-rose-600">
+                                Rp {{ number_format($b->total_price, 0, ',', '.') }}
+                            </span>
+                        </div>
+
+                        {{-- Tombol Batal Klien (Tahap 1) --}}
+                        @if(in_array($b->status, ['pending', 'waiting_payment']) && $b->payment_status === 'unpaid')
+                            <button type="button" 
+                                onclick="openCancelModal('{{ $b->id }}')" 
+                                class="text-xs font-semibold px-3 py-1.5 bg-white border border-rose-300 text-rose-600 hover:bg-rose-50 rounded-xl transition shadow-2xs self-start sm:self-auto">
+                                ✕ Batalkan Pesanan
+                            </button>
+                        @endif
                     </div>
                 </div>
 

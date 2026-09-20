@@ -93,6 +93,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:mua,client')->group(function () {
         // Jadwal Booking
         Route::patch('/bookings/{booking}/status', [BookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+
+        // cancel user
+        Route::patch('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
     });
 
 

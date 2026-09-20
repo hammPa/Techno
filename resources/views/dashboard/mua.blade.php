@@ -190,5 +190,7 @@
             }
         });
     </script>
+
+    @include('partials.modal-cancel-booking')
 </body>
 </html>

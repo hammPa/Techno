@@ -21,6 +21,14 @@ class Booking extends Model
         'completion_code',
         'payment_status',
         'notes',
+        'cancellation_reason',
+        'cancelled_by',
+        'cancelled_at',
+    ];
+
+    protected $casts = [
+        'booking_date' => 'date',
+        'cancelled_at' => 'datetime',
     ];
 
     public function client()
@@ -47,5 +55,10 @@ class Booking extends Model
     public function latestPayment()
     {
         return $this->hasOne(Payment::class)->latestOfMany();
+    }
+
+    public function cancelledByUser()
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class BookingController extends Controller
 {
@@ -94,5 +96,40 @@ class BookingController extends Controller
         ]);
 
         return back()->with('success', 'Pekerjaan selesai terverifikasi! Dana telah diteruskan ke akun MUA Anda.');
+    }
+
+
+    public function cancel(Request $request, Booking$booking)
+    {
+        $user = Auth::user();
+
+        // 1. Validasi hak akses: hanya Klien pemesan atau MUA terkait yang boleh membatalkan
+        if ($booking->client_id !==$user->id && $booking->mua_id !==$user->id) {
+            abort(403, 'Anda tidak memiliki akses untuk membatalkan pesanan ini.');
+        }
+
+        // 2. Validasi status (Fokus Tahap 1: belum ada uang masuk)
+        // Hanya bisa batal jika status masih pending/waiting_payment DAN payment_status unpaid
+        $canCancelStage1 = in_array($booking->status, ['pending', 'waiting_payment']) 
+            && $booking->payment_status === 'unpaid';
+
+        if (!$canCancelStage1) {
+            return back()->with('error', 'Pesanan ini tidak dapat dibatalkan melalui jalur sederhana karena status sudah berjalan atau pembayaran sedang diproses.');
+        }
+
+        // 3. Validasi input alasan
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:500',
+        ]);
+
+        // 4. Update data booking
+        $booking->update([
+            'status' => 'cancelled',
+            'cancellation_reason' => $request->cancellation_reason,
+            'cancelled_by' => $user->id,
+            'cancelled_at' => now(),
+        ]);
+
+        return back()->with('success', 'Pesanan berhasil dibatalkan.');
     }
 }
