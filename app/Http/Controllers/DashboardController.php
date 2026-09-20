@@ -89,8 +89,12 @@ class DashboardController extends Controller
             abort(404);
         }
 
-        $mua->load(['muaProfile', 'services', 'portfolios']);
-        return view('dashboard.mua-detail', compact('mua'));
+        $mua->load(['muaProfile', 'services', 'portfolios', 'muaReviews.client']);
+
+        $totalReviews = $mua->muaReviews->count();
+        $averageRating = $totalReviews > 0 ? round($mua->muaReviews->avg('rating'), 1) : 0;
+
+        return view('dashboard.mua-detail', compact('mua', 'totalReviews', 'averageRating'));
     }
 
     // Action Simpan/Update Profil MUA

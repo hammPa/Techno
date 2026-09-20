@@ -149,5 +149,6 @@
     </script>
 
     @include('partials.modal-cancel-booking')
+    @include('partials.modal-review')
 </body>
 </html>

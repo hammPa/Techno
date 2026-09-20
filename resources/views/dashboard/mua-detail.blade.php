@@ -21,6 +21,14 @@
                 <div>
                     <h1 class="text-xl sm:text-2xl font-bold text-slate-900">{{ $mua->muaProfile->studio_name ?? $mua->name }}</h1>
                     <p class="text-xs text-slate-500 mt-0.5">📍 {{ $mua->muaProfile->city ?? 'Padang' }} • Artisan: {{ $mua->name }}</p>
+
+                    <!-- 1. POSISI RATING BINTANG RINGKAS DI SINI -->
+                    <div class="flex items-center gap-1.5 text-xs mt-1">
+                        <span class="text-amber-400 text-sm">★</span>
+                        <span class="font-bold text-slate-800">{{ $averageRating > 0 ? $averageRating : 'Baru' }}</span>
+                        <span class="text-slate-400">({{ $totalReviews }} ulasan)</span>
+                    </div>
+
                     @if($mua->muaProfile && $mua->muaProfile->instagram_username)
                         <a href="https://instagram.com/{{ ltrim($mua->muaProfile->instagram_username, '@') }}" target="_blank" class="text-xs text-rose-600 hover:underline font-medium mt-1 inline-block">
                             📸 @<span>{{ ltrim($mua->muaProfile->instagram_username, '@') }}</span>
@@ -87,6 +95,36 @@
                     </div>
                 @empty
                     <p class="py-6 text-center text-xs text-slate-400">Belum ada paket tarif yang terdaftar.</p>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- 2. POSISI DAFTAR ULASAN DARI KLIEN DI SINI -->
+        <div class="bg-white rounded-3xl border border-rose-100 p-6 shadow-xs">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-bold text-base text-slate-900">Ulasan dari Klien</h2>
+                <span class="text-xs font-semibold text-rose-600">{{ $totalReviews }} Ulasan</span>
+            </div>
+
+            <div class="space-y-3">
+                @forelse($mua->muaReviews as $rev)
+                    <div class="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/70">
+                        <div class="flex items-center justify-between">
+                            <div class="font-bold text-xs text-slate-900">{{ $rev->client->name }}</div>
+                            <div class="flex items-center gap-1 text-amber-500 text-xs font-bold">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <span>{{ $i <= $rev->rating ? '★' : '☆' }}</span>
+                                @endfor
+                                <span class="ml-1 text-slate-700">{{ $rev->rating }}.0</span>
+                            </div>
+                        </div>
+                        @if($rev->comment)
+                            <p class="text-xs text-slate-600 mt-1.5 italic">"{{ $rev->comment }}"</p>
+                        @endif
+                        <span class="text-[10px] text-slate-400 mt-2 block">{{ $rev->created_at->diffForHumans() }}</span>
+                    </div>
+                @empty
+                    <p class="py-6 text-center text-xs text-slate-400">Belum ada ulasan untuk MUA ini.</p>
                 @endforelse
             </div>
         </div>

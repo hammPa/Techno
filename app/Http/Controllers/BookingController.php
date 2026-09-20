@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Review;
 
 
 class BookingController extends Controller
@@ -131,5 +132,44 @@ class BookingController extends Controller
         ]);
 
         return back()->with('success', 'Pesanan berhasil dibatalkan.');
+    }
+
+
+
+    public function storeReview(Request $request, Booking $booking)
+    {
+        $user = Auth::user();
+
+        // 1. Validasi kepemilikan booking
+        if ($booking->client_id !== $user->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengulas pesanan ini.');
+        }
+
+        // 2. Booking harus berstatus completed
+        if ($booking->status !== 'completed') {
+            return back()->with('error', 'Ulasan hanya dapat diberikan setelah layanan berstatus selesai.');
+        }
+
+        // 3. Pastikan belum pernah di-review
+        if ($booking->review()->exists()) {
+            return back()->with('error', 'Anda sudah memberikan ulasan untuk pesanan ini.');
+        }
+
+        // 4. Validasi input
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        // 5. Simpan review
+        Review::create([
+            'booking_id' => $booking->id,
+            'client_id' => $user->id,
+            'mua_id' => $booking->mua_id,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+        ]);
+
+        return back()->with('success', 'Terima kasih! Ulasan Anda berhasil disimpan.');
     }
 }

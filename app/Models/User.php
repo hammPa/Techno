@@ -101,4 +101,9 @@ class User extends Authenticatable
 
         return max(0, $totalEarned - $totalWithdrawn);
     }
+
+    public function muaReviews()
+    {
+        return $this->hasMany(Review::class, 'mua_id');
+    }
 }

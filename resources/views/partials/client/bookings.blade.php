@@ -225,11 +225,39 @@
                         </div>
 
                     @elseif($b->status === 'completed')
-                        <div class="bg-blue-50 border border-blue-200 p-3.5 rounded-2xl flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="text-base">🎉</span>
-                                <span class="text-xs font-semibold text-blue-900">Layanan ini telah selesai dilaksanakan. Terima kasih telah menggunakan GlowMUA!</span>
+                        <div class="bg-blue-50 border border-blue-200 p-4 rounded-2xl">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-base">🎉</span>
+                                    <span class="text-xs font-semibold text-blue-900">Layanan selesai dilaksanakan. Terima kasih telah menggunakan GlowMUA!</span>
+                                </div>
+
+                                @if(!$b->review)
+                                    <button type="button" 
+                                        onclick="openReviewModal('{{ $b->id }}', '{{ $b->mua->muaProfile->studio_name ?? $b->mua->name }}', '{{ $b->service->title }}')"
+                                        class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition shadow-xs whitespace-nowrap self-start sm:self-auto">
+                                        ⭐ Beri Ulasan MUA
+                                    </button>
+                                @endif
                             </div>
+
+                            {{-- Jika Klien Sudah Mengisi Ulasan --}}
+                            @if($b->review)
+                                <div class="mt-3 pt-3 border-t border-blue-200/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div>
+                                        <div class="flex items-center gap-1 text-amber-500 text-sm">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <span>{{ $i <= $b->review->rating ? '★' : '☆' }}</span>
+                                            @endfor
+                                            <span class="text-xs font-bold text-slate-700 ml-1.5">{{ $b->review->rating }}.0 / 5.0</span>
+                                        </div>
+                                        @if($b->review->comment)
+                                            <p class="text-[11px] text-slate-600 italic mt-1">"{{ $b->review->comment }}"</p>
+                                        @endif
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 font-medium">Diulas pada {{ $b->review->created_at->format('d M Y') }}</span>
+                                </div>
+                            @endif
                         </div>
                     @endif
                 </div>

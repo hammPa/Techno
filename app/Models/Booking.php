@@ -61,4 +61,9 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'cancelled_by');
     }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class);
+    }
 }

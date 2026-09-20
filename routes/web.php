@@ -87,6 +87,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Upload Bukti Bayar oleh Klien
         Route::post('/bookings/{booking}/payments', [PaymentController::class, 'store'])->name('payments.store');
+
+        // Rute Beri Ulasan (Review)
+        Route::post('/bookings/{booking}/reviews', [BookingController::class, 'storeReview'])->name('reviews.store');
     });
 
     // KHUSUS MUA DAN CLIENT
