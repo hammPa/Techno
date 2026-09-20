@@ -56,9 +56,9 @@
                 <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Halo, {{ $user->name }} 👋</h1>
                 <p class="text-xs text-slate-500">Pantau status reservasi riasan, pembayaran, dan cari MUA favoritmu</p>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 font-bold flex items-center justify-center text-xs border border-rose-200 uppercase shadow-sm">
+            <a href="{{ route('profile.edit') }}" class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 font-bold flex items-center justify-center text-xs border border-rose-200 uppercase shadow-sm">
                 {{ substr($user->name, 0, 2) }}
-            </div>
+            </a>
         </div>
 
         <!-- Alert Notifikasi -->

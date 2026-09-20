@@ -11,6 +11,10 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+
 class DashboardController extends Controller
 {
     public function index()
@@ -140,5 +144,51 @@ class DashboardController extends Controller
 
         $portfolio->delete();
         return back()->with('success', 'Portofolio berhasil dihapus.');
+    }
+
+
+    // Menampilkan halaman form edit profil
+    public function editProfile()
+    {
+        return view('dashboard.profile', [
+            'user' => auth()->user()
+        ]);
+    }
+
+    // Memproses update data profil & kredensial
+    public function updateAccount(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'password' => ['nullable', 'confirmed', Password::defaults()],
+        ]);
+
+        // Reset verifikasi email jika alamat email diganti
+        if ($validated['email'] !== $user->email) {
+            $user->email_verified_at = null;
+        }
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->phone = $validated['phone'] ?? null;
+
+        // Hash password jika kolom diisi
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return redirect()->route('dashboard')->with('success', 'Profil dan kredensial akun berhasil diperbarui!');
     }
 }

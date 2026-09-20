@@ -58,6 +58,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 
+    Route::get('/profile', [DashboardController::class, 'editProfile'])->name('profile.edit');
+    Route::put('/profile', [DashboardController::class, 'updateAccount'])->name('profile.update');
+    
+
     // KHUSUS MUA
     Route::middleware('role:mua')->group(function () {
         Route::post('/mua/profile', [DashboardController::class, 'updateProfile'])->name('mua.profile.update');
