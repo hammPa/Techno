@@ -15,6 +15,9 @@ class MuaProfile extends Model
         'city',
         'bio',
         'instagram_username',
+        'id_card_url',
+        'verification_status',
+        'rejection_reason',
     ];
 
     public function user()

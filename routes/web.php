@@ -15,6 +15,9 @@ use App\Models\User;
 Route::get('/', function () {
     $muaList = User::where('role', 'mua')
         ->whereNotNull('email_verified_at')
+        ->whereHas('muaProfile', function ($query) {
+            $query->where('verification_status', 'verified');
+        })
         ->with(['muaProfile', 'services', 'portfolios'])
         ->latest()
         ->take(6) // Tampilkan 6 MUA unggulan untuk landing page
@@ -64,6 +67,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // KHUSUS MUA
     Route::middleware('role:mua')->group(function () {
+        // Upload Identitas / KTP
+        Route::post('/mua/verify-identity', [DashboardController::class, 'uploadIdCard'])->name('mua.identity.upload');
+
         Route::post('/mua/profile', [DashboardController::class, 'updateProfile'])->name('mua.profile.update');
         Route::post('/mua/portfolio', [DashboardController::class, 'storePortfolio'])->name('mua.portfolio.store');
         Route::delete('/mua/portfolio/{portfolio}', [DashboardController::class, 'destroyPortfolio'])->name('mua.portfolio.destroy');
@@ -104,6 +110,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // KHUSUS ADMIN
     Route::middleware('role:admin')->group(function () {
+        // Aksi verifikasi KTP oleh Admin
+        Route::patch('/admin/mua/{muaProfile}/verify', [DashboardController::class, 'verifyMua'])->name('admin.mua.verify');
+        Route::patch('/admin/mua/{muaProfile}/reject', [DashboardController::class, 'rejectMua'])->name('admin.mua.reject');
+    
         // Verifikasi Pembayaran oleh Admin
         Route::patch('/admin/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('admin.payments.verify');
     

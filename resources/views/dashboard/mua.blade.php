@@ -83,6 +83,8 @@
             </div>
         @endif
 
+        @include('partials.mua.verification-banner')
+
         <!-- Tab Contents -->
         <div id="content-ringkasan" class="tab-content">
             @include('partials.mua.overview')

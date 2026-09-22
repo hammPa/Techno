@@ -69,6 +69,9 @@ class DashboardController extends Controller
         // 3. JIKA YANG LOGIN KLIEN
         $muaList = User::where('role', 'mua')
             ->whereNotNull('email_verified_at')
+            ->whereHas('muaProfile', function ($query) {
+                $query->where('verification_status', 'verified');
+            })
             ->with(['muaProfile', 'services', 'portfolios'])
             ->latest()
             ->get();
@@ -194,5 +197,65 @@ class DashboardController extends Controller
         $user->save();
 
         return redirect()->route('dashboard')->with('success', 'Profil dan kredensial akun berhasil diperbarui!');
+    }
+
+
+
+    /**
+     * MUA mengunggah foto KTP / identitas
+     */
+    public function uploadIdCard(Request $request)
+    {
+        $request->validate([
+            'id_card' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:3072'],
+        ]);
+
+        $profile = auth()->user()->muaProfile;
+
+        // Hapus file lama jika sebelumnya sudah ada berkas di storage
+        if ($profile->id_card_url && Storage::exists($profile->id_card_url)) {
+            Storage::delete($profile->id_card_url);
+        }
+
+        // Mengikuti default disk (Supabase) seperti storePortfolio
+        $path = $request->file('id_card')->store('id_cards');
+
+        $profile->update([
+            'id_card_url' => $path,
+            'verification_status' => 'pending',
+            'rejection_reason' => null,
+        ]);
+
+        return back()->with('success', 'Foto identitas berhasil dikirim dan sedang menunggu verifikasi admin.');
+    }
+
+    /**
+     * Admin menyetujui verifikasi MUA
+     */
+    public function verifyMua(MuaProfile $muaProfile)
+    {
+        $muaProfile->update([
+            'verification_status' => 'verified',
+            'rejection_reason' => null,
+        ]);
+
+        return back()->with('success', 'MUA berhasil diverifikasi!');
+    }
+
+    /**
+     * Admin menolak verifikasi MUA dengan alasan
+     */
+    public function rejectMua(Request $request, MuaProfile $muaProfile)
+    {
+        $validated = $request->validate([
+            'rejection_reason' => ['required', 'string', 'max:500'],
+        ]);
+
+        $muaProfile->update([
+            'verification_status' => 'rejected',
+            'rejection_reason' => $validated['rejection_reason'],
+        ]);
+
+        return back()->with('success', 'Verifikasi MUA ditolak.');
     }
 }
