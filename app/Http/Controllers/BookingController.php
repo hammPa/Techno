@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Service;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Review;
-
 
 class BookingController extends Controller
 {
@@ -24,12 +25,79 @@ class BookingController extends Controller
             'mua_id' => ['required', 'exists:users,id'],
             'service_id' => ['required', 'exists:services,id'],
             'booking_date' => ['required', 'date', 'after_or_equal:today'],
-            'booking_time' => ['required'],
+            'booking_time' => ['required', 'date_format:H:i'],
             'location_address' => ['required', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
+        // 1. Ambil data MUA beserta jadwalnya
+        $mua = User::with('schedules')->findOrFail($validated['mua_id']);
+
+        // 2. Tentukan hari dalam angka (0 = Minggu, 1 = Senin, ... 6 = Sabtu)
+        $bookingDate = Carbon::parse($validated['booking_date']);
+        $dayOfWeek = $bookingDate->dayOfWeek;
+
+        $schedule = $mua->schedules->where('day_of_week', $dayOfWeek)->first();
+
+        // Jika MUA belum setting jadwal sama sekali, default buka 08:00 - 17:00 (kecuali Minggu)
+        $isActive = $schedule ? $schedule->is_active : ($dayOfWeek !== 0);
+        $startTime = $schedule ? Carbon::parse($schedule->start_time)->format('H:i') : '08:00';
+        $endTime = $schedule ? Carbon::parse($schedule->end_time)->format('H:i') : '17:00';
+
+        // Validasi: Apakah hari tersebut MUA beroperasi?
+        if (!$isActive) {
+            return back()->withInput()->withErrors([
+                'booking_date' => 'MUA tidak beroperasi / libur pada hari ' . $bookingDate->translatedFormat('l') . '.'
+            ]);
+        }
+
+        // Validasi: Apakah jam booking berada dalam rentang jam operasional?
+        $requestedTime = Carbon::parse($validated['booking_time'])->format('H:i');
+        if ($requestedTime < $startTime || $requestedTime > $endTime) {
+            return back()->withInput()->withErrors([
+                'booking_time' => "Jam mulai booking harus di antara jam operasional MUA ({$startTime} - {$endTime} WIB)."
+            ]);
+        }
+
         $service = Service::findOrFail($validated['service_id']);
+
+        // Waktu mulai dan perkiraan selesai pengerjaan rias
+        $newStart = Carbon::parse("{$validated['booking_date']} {$validated['booking_time']}");
+        $newEnd = (clone $newStart)->addMinutes($service->duration_minutes);
+
+        // ==============================================================
+        // VALIDASI BARU: CEK APAKAH RIASAN SELESAI MELEWATI JAM TUTUP MUA
+        // ==============================================================
+        $closingTime = Carbon::parse("{$validated['booking_date']} {$endTime}");
+        if ($newEnd->gt($closingTime)) {
+            $estimatedDone = $newEnd->format('H:i');
+            return back()->withInput()->withErrors([
+                'booking_time' => "Waktu pengerjaan ({$service->duration_minutes} menit) diperkirakan selesai pukul {$estimatedDone} WIB, melewati jam tutup operasional MUA ({$endTime} WIB). Silakan pilih jam mulai yang lebih awal."
+            ]);
+        }
+        // ==============================================================
+
+        // Validasi: Cek bentrok dengan jadwal booking yang sudah ada
+        $existingBookings = Booking::with('service')
+            ->where('mua_id', $validated['mua_id'])
+            ->where('booking_date', $validated['booking_date'])
+            ->whereIn('status', ['pending', 'waiting_payment', 'confirmed'])
+            ->get();
+
+        foreach ($existingBookings as $exist) {
+            $existDuration = $exist->service ? $exist->service->duration_minutes : 120;
+            $existStart = Carbon::parse("{$exist->booking_date} {$exist->booking_time}");
+            $existEnd = (clone $existStart)->addMinutes($existDuration);
+
+            // Logika Overlap: StartBaru < EndLama && EndBaru > StartLama
+            if ($newStart->lt($existEnd) && $newEnd->gt($existStart)) {
+                $occupiedFrom = $existStart->format('H:i');
+                $occupiedTo = $existEnd->format('H:i');
+                return back()->withInput()->withErrors([
+                    'booking_time' => "Jadwal bentrok! MUA sudah memiliki agenda pada pukul {$occupiedFrom} - {$occupiedTo} WIB. Silakan pilih jam lain."
+                ]);
+            }
+        }
 
         Booking::create([
             'client_id' => auth()->id(),
@@ -99,13 +167,12 @@ class BookingController extends Controller
         return back()->with('success', 'Pekerjaan selesai terverifikasi! Dana telah diteruskan ke akun MUA Anda.');
     }
 
-
-    public function cancel(Request $request, Booking$booking)
+    public function cancel(Request $request, Booking $booking)
     {
         $user = Auth::user();
 
         // 1. Validasi hak akses: hanya Klien pemesan atau MUA terkait yang boleh membatalkan
-        if ($booking->client_id !==$user->id && $booking->mua_id !==$user->id) {
+        if ($booking->client_id !== $user->id && $booking->mua_id !== $user->id) {
             abort(403, 'Anda tidak memiliki akses untuk membatalkan pesanan ini.');
         }
 
@@ -133,8 +200,6 @@ class BookingController extends Controller
 
         return back()->with('success', 'Pesanan berhasil dibatalkan.');
     }
-
-
 
     public function storeReview(Request $request, Booking $booking)
     {

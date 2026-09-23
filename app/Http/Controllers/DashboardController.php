@@ -63,7 +63,21 @@ class DashboardController extends Controller
 
             $myPayouts = $user->payouts()->latest()->get();
 
-            return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios', 'bookings', 'myPayouts'));
+            // Ambil jadwal kerja MUA yang tersimpan
+            $schedules = $user->schedules()->get()->keyBy('day_of_week');
+
+            // Pemetaan nama hari
+            $days = [
+                1 => 'Senin',
+                2 => 'Selasa',
+                3 => 'Rabu',
+                4 => 'Kamis',
+                5 => 'Jumat',
+                6 => 'Sabtu',
+                0 => 'Minggu',
+            ];
+
+            return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios', 'bookings', 'myPayouts', 'schedules', 'days'));
         }
 
         // 3. JIKA YANG LOGIN KLIEN
@@ -73,6 +87,8 @@ class DashboardController extends Controller
                 $query->where('verification_status', 'verified');
             })
             ->with(['muaProfile', 'services', 'portfolios'])
+            ->withCount('muaReviews')
+            ->withAvg('muaReviews', 'rating')
             ->latest()
             ->get();
 
@@ -92,12 +108,23 @@ class DashboardController extends Controller
             abort(404);
         }
 
-        $mua->load(['muaProfile', 'services', 'portfolios', 'muaReviews.client']);
+        $mua->load(['muaProfile', 'services', 'portfolios', 'muaReviews.client', 'schedules']);
 
         $totalReviews = $mua->muaReviews->count();
         $averageRating = $totalReviews > 0 ? round($mua->muaReviews->avg('rating'), 1) : 0;
 
-        return view('dashboard.mua-detail', compact('mua', 'totalReviews', 'averageRating'));
+        // Siapkan array hari di controller
+        $dayNames = [
+            1 => 'Senin',
+            2 => 'Selasa',
+            3 => 'Rabu',
+            4 => 'Kamis',
+            5 => 'Jumat',
+            6 => 'Sabtu',
+            0 => 'Minggu',
+        ];
+
+        return view('dashboard.mua-detail', compact('mua', 'totalReviews', 'averageRating', 'dayNames'));
     }
 
     // Action Simpan/Update Profil MUA

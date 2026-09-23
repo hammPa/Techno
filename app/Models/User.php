@@ -106,4 +106,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class, 'mua_id');
     }
+
+    public function schedules()
+    {
+        return $this->hasMany(MuaSchedule::class);
+    }
 }

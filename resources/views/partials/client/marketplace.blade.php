@@ -4,11 +4,16 @@
             <h2 class="font-bold text-base text-slate-900">Katalog Pilihan Makeup Artist</h2>
             <p class="text-xs text-slate-400">Pilih MUA dan atur jadwal janji rias langsung</p>
         </div>
-        <span class="text-xs font-semibold text-rose-600">{{ $muaList->count() }} Terdaftar</span>
+        <span class="text-xs font-semibold text-rose-600">{{ $muaList->count() }} Terverifikasi</span>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         @forelse($muaList as $mua)
+            @php
+                $avgRating = $mua->mua_reviews_avg_rating ? round($mua->mua_reviews_avg_rating, 1) : null;
+                $reviewCount = $mua->mua_reviews_count ?? 0;
+            @endphp
+
             <div class="bg-white rounded-3xl border border-rose-100 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between">
                 <div>
                     <div class="h-44 bg-rose-50 relative overflow-hidden flex items-center justify-center">
@@ -21,15 +26,32 @@
                         @else
                             <span class="text-4xl">🪞</span>
                         @endif
+
                         <span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700">
                             📍 {{ $mua->muaProfile->city ?? 'Indonesia' }}
+                        </span>
+
+                        <!-- Badge Terverifikasi Resmi -->
+                        <span class="absolute top-3 right-3 bg-emerald-500/90 text-white backdrop-blur-md px-2 py-0.5 rounded-lg text-[10px] font-bold shadow-xs flex items-center gap-1">
+                            ✓ Terverifikasi
                         </span>
                     </div>
 
                     <div class="p-5">
                         <div class="flex items-center justify-between mb-1">
                             <h3 class="font-bold text-base text-slate-900 truncate">{{ $mua->muaProfile->studio_name ?? $mua->name }}</h3>
-                            <span class="text-xs font-bold text-amber-500">★ 5.0</span>
+                            
+                            <!-- Rating Ulasan Klien -->
+                            @if($avgRating)
+                                <span class="text-xs font-bold text-amber-500 flex items-center gap-0.5">
+                                    ★ {{ $avgRating }}
+                                    <span class="text-[10px] text-slate-400 font-normal">({{ $reviewCount }})</span>
+                                </span>
+                            @else
+                                <span class="text-[10px] font-medium text-slate-400">
+                                    Baru bergabung
+                                </span>
+                            @endif
                         </div>
                         <p class="text-xs text-slate-400">Artisan: {{ $mua->name }}</p>
                         <p class="text-xs text-slate-600 mt-2 line-clamp-2 leading-relaxed">
@@ -68,7 +90,9 @@
             </div>
         @empty
             <div class="col-span-full py-12 text-center bg-white rounded-3xl border border-rose-100">
-                <p class="text-xs text-slate-400">Belum ada akun MUA terdaftar.</p>
+                <span class="text-3xl block mb-2">💄</span>
+                <p class="text-xs font-semibold text-slate-700">Belum ada MUA terverifikasi yang tersedia.</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Silakan periksa kembali beberapa saat lagi.</p>
             </div>
         @endforelse
     </div>

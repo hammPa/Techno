@@ -35,6 +35,10 @@
                     </span>
                 @endif
             </button>
+            <button type="button" onclick="switchTab('jadwal')" id="btn-tab-jadwal"
+                class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
+                <span>⏰</span> Jadwal Kerja
+            </button>
             <button type="button" onclick="switchTab('saldo')" id="btn-tab-saldo"
                 class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
                 <span>💸</span> Tarik Saldo
@@ -94,6 +98,10 @@
             @include('partials.mua.reservations')
         </div>
 
+        <div id="content-jadwal" class="tab-content hidden">
+            @include('partials.mua.schedules')
+        </div>
+
         <div id="content-saldo" class="tab-content hidden">
             @include('partials.mua.payout')
         </div>
@@ -116,6 +124,10 @@
         <button type="button" onclick="switchTab('reservasi')" id="btn-mobile-reservasi" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
             <span class="text-base">📅</span>
             <span class="text-[10px] font-medium mt-0.5">Reservasi</span>
+        </button>
+        <button type="button" onclick="switchTab('jadwal')" id="btn-mobile-jadwal" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
+            <span class="text-base">⏰</span>
+            <span class="text-[10px] font-medium mt-0.5">Jadwal</span>
         </button>
         <button type="button" onclick="switchTab('saldo')" id="btn-mobile-saldo" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
             <span class="text-base">💸</span>
@@ -140,19 +152,19 @@
 
     <!-- Tab Control Script -->
     <script>
-        const validTabs = ['ringkasan', 'reservasi', 'saldo', 'paket', 'profil'];
+        const validTabs = ['ringkasan', 'reservasi', 'jadwal', 'saldo', 'paket', 'profil'];
 
         function switchTab(tab) {
             if (!validTabs.includes(tab)) tab = 'ringkasan';
 
-            // Hide all contents
+            // Sembunyikan seluruh konten tab
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
 
-            // Show selected tab content
+            // Tampilkan tab yang dipilih
             const activeContent = document.getElementById(`content-${tab}`);
             if (activeContent) activeContent.classList.remove('hidden');
 
-            // Reset Desktop Sidebar Buttons
+            // Reset tombol desktop sidebar
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-rose-50', 'text-rose-700', 'font-semibold');
                 btn.classList.add('text-slate-600', 'font-medium');
@@ -163,7 +175,7 @@
                 activeDesktopBtn.classList.add('bg-rose-50', 'text-rose-700', 'font-semibold');
             }
 
-            // Reset Mobile Bottom Nav Buttons
+            // Reset tombol mobile bottom nav
             document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
                 btn.classList.remove('text-rose-600');
                 btn.classList.add('text-slate-400');
@@ -174,17 +186,15 @@
                 activeMobileBtn.classList.add('text-rose-600');
             }
 
-            // Sync URL hash
+            // Sinkronisasi hash URL
             history.replaceState(null, null, `#${tab}`);
         }
 
-        // Handle direct links or browser back/forward buttons with hash
         window.addEventListener('hashchange', () => {
             const hash = window.location.hash.replace('#', '');
             if (hash) switchTab(hash);
         });
 
-        // Initialize active tab on first load
         document.addEventListener('DOMContentLoaded', () => {
             const initialHash = window.location.hash.replace('#', '');
             if (validTabs.includes(initialHash)) {

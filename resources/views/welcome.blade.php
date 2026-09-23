@@ -37,22 +37,47 @@
     <main class="flex-1">
         <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-12 text-center">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold mb-4">
-                💄 Platform Direktori & Reservasi MUA
+                💄 Platform Direktori & Reservasi MUA Terverifikasi
             </span>
             <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight max-w-3xl mx-auto leading-tight sm:leading-tight">
                 Temukan Sentuhan Riasan Sempurna untuk Hari Bahagiamu
             </h1>
             <p class="text-xs sm:text-base text-slate-500 mt-3 max-w-xl mx-auto leading-relaxed">
-                Jelajahi hasil karya makeup artist profesional untuk acara wisuda, wedding, lamaran, hingga photoshoot.
+                Jelajahi karya makeup artist resmi dan terverifikasi identitasnya untuk acara wisuda, wedding, lamaran, hingga photoshoot.
             </p>
 
             <!-- Search Bar Mockup -->
-            <div class="mt-8 max-w-xl mx-auto bg-white p-2 sm:p-2.5 rounded-2xl shadow-lg shadow-rose-950/5 border border-rose-100 flex items-center gap-2">
+            <form action="{{ route('home') }}#katalog" method="GET" class="mt-8 max-w-xl mx-auto bg-white p-2 sm:p-2.5 rounded-2xl shadow-lg shadow-rose-950/5 border border-rose-100 flex items-center gap-2">
+                @if(request('category'))
+                    <input type="hidden" name="category" value="{{ request('category') }}">
+                @endif
                 <span class="pl-2 text-slate-400">🔍</span>
-                <input type="text" placeholder="Cari nama MUA, acara, atau kota domisili..." class="w-full text-xs sm:text-sm focus:outline-none bg-transparent">
-                <a href="#katalog" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition shrink-0">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama MUA, studio, atau kota domisili..." class="w-full text-xs sm:text-sm focus:outline-none bg-transparent">
+                @if(request('q'))
+                    <a href="{{ route('home') }}#katalog" class="text-xs text-slate-400 hover:text-rose-600 px-1">✕</a>
+                @endif
+                <button type="submit" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition shrink-0">
                     Cari
-                </a>
+                </button>
+            </form>
+
+            <!-- Kategori Cepat -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
+                @php
+                    $categories = [
+                        '' => 'Semua',
+                        'wedding' => 'Wedding',
+                        'graduation' => 'Wisuda',
+                        'engagement' => 'Lamaran',
+                        'photoshoot' => 'Photoshoot',
+                    ];
+                @endphp
+                @foreach($categories as $key => $label)
+                    <a href="{{ route('home', array_filter(['category' => $key, 'q' => request('q')])) }}#katalog"
+                       class="px-3 py-1.5 rounded-xl text-xs font-semibold transition {{ (request('category', '') === $key) ? 'bg-rose-600 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-rose-50 border border-rose-100/70' }}">
+                        {{ $label }}
+                    </a>
+                @endforeach
             </div>
         </section>
 
@@ -60,13 +85,33 @@
         <section id="katalog" class="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h2 class="text-lg sm:text-xl font-bold text-slate-900">Pilihan MUA Terpopuler</h2>
-                    <p class="text-xs text-slate-400">Lihat portofolio rias dan estimasi paket harga</p>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+                        @if(request('q') || request('category'))
+                            Hasil Pencarian
+                            <span class="text-xs font-normal text-slate-400">
+                                ({{ $muaList->count() }} MUA ditemukan)
+                            </span>
+                        @else
+                            Pilihan MUA Terpopuler
+                        @endif
+                    </h2>
+                    <p class="text-xs text-slate-400">Lihat portofolio rias, review klien asli, dan estimasi paket harga</p>
                 </div>
+
+                @if(request('q') || request('category'))
+                    <a href="{{ route('home') }}#katalog" class="text-xs font-semibold text-rose-600 hover:underline">
+                        Reset Filter
+                    </a>
+                @endif
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @forelse($muaList as $mua)
+                    @php
+                        $avgRating = $mua->mua_reviews_avg_rating ? round($mua->mua_reviews_avg_rating, 1) : null;
+                        $reviewCount = $mua->mua_reviews_count ?? 0;
+                    @endphp
+
                     <div class="bg-white rounded-3xl border border-rose-100 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between">
                         <div>
                             <!-- Foto Portofolio -->
@@ -88,8 +133,14 @@
                                     <span class="text-4xl">🪞</span>
                                 @endif
 
+                                <!-- Badge Lokasi -->
                                 <span class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-slate-700 shadow-xs">
                                     📍 {{ $mua->muaProfile->city ?? 'Indonesia' }}
+                                </span>
+
+                                <!-- Badge Terverifikasi Resmi -->
+                                <span class="absolute top-3 right-3 bg-emerald-500/90 text-white backdrop-blur-md px-2 py-0.5 rounded-lg text-[10px] font-bold shadow-xs flex items-center gap-1">
+                                    ✓ Terverifikasi
                                 </span>
                             </div>
 
@@ -97,7 +148,18 @@
                             <div class="p-5">
                                 <div class="flex items-center justify-between mb-1">
                                     <h3 class="font-bold text-base text-slate-900 truncate">{{ $mua->muaProfile->studio_name ?? $mua->name }}</h3>
-                                    <span class="text-xs font-bold text-amber-500">★ 5.0</span>
+                                    
+                                    <!-- Rating Ulasan Klien -->
+                                    @if($avgRating)
+                                        <span class="text-xs font-bold text-amber-500 flex items-center gap-0.5">
+                                            ★ {{ $avgRating }}
+                                            <span class="text-[10px] text-slate-400 font-normal">({{ $reviewCount }})</span>
+                                        </span>
+                                    @else
+                                        <span class="text-[10px] font-medium text-slate-400">
+                                            Baru bergabung
+                                        </span>
+                                    @endif
                                 </div>
                                 <p class="text-xs text-slate-400">Artisan: {{ $mua->name }}</p>
                                 <p class="text-xs text-slate-600 mt-2 line-clamp-2 leading-relaxed">
@@ -138,8 +200,13 @@
                 @empty
                     <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-rose-100">
                         <span class="text-4xl block mb-2">💄</span>
-                        <h3 class="font-bold text-sm text-slate-800">Katalog MUA Sedang Disiapkan</h3>
-                        <p class="text-xs text-slate-400 mt-1">Daftar sekarang sebagai MUA untuk menampilkan karya terbaikmu di halaman depan ini.</p>
+                        <h3 class="font-bold text-sm text-slate-800">Tidak ada MUA yang sesuai</h3>
+                        <p class="text-xs text-slate-400 mt-1">Coba cari kata kunci atau kota lain, atau reset filter pencarianmu.</p>
+                        @if(request('q') || request('category'))
+                            <a href="{{ route('home') }}#katalog" class="inline-block mt-3 px-4 py-2 bg-rose-50 text-rose-700 rounded-xl text-xs font-semibold hover:bg-rose-100 transition">
+                                Tampilkan Semua MUA
+                            </a>
+                        @endif
                     </div>
                 @endforelse
             </div>

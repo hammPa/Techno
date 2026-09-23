@@ -8,22 +8,42 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayoutController;
+use App\Http\Controllers\ScheduleController;
 use App\Models\User;
 
 
 // landing page
-Route::get('/', function () {
+Route::get('/', function (\Illuminate\Http\Request $request) {
+    $search = $request->query('q');
+    $category = $request->query('category');
+
     $muaList = User::where('role', 'mua')
         ->whereNotNull('email_verified_at')
         ->whereHas('muaProfile', function ($query) {
             $query->where('verification_status', 'verified');
         })
+        ->when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('muaProfile', function ($qp) use ($search) {
+                      $qp->where('studio_name', 'like', "%{$search}%")
+                         ->orWhere('city', 'like', "%{$search}%");
+                  });
+            });
+        })
+        ->when($category, function ($query, $category) {
+            $query->whereHas('services', function ($q) use ($category) {
+                $q->where('category', $category);
+            });
+        })
         ->with(['muaProfile', 'services', 'portfolios'])
+        ->withCount('muaReviews')
+        ->withAvg('muaReviews', 'rating')
         ->latest()
-        ->take(6) // Tampilkan 6 MUA unggulan untuk landing page
+        ->take(9)
         ->get();
 
-    return view('welcome', compact('muaList'));
+    return view('welcome', compact('muaList', 'search', 'category'));
 })->name('home');
 
 
@@ -69,6 +89,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('role:mua')->group(function () {
         // Upload Identitas / KTP
         Route::post('/mua/verify-identity', [DashboardController::class, 'uploadIdCard'])->name('mua.identity.upload');
+
+        Route::put('/mua/schedules', [ScheduleController::class, 'update'])->name('mua.schedules.update');
 
         Route::post('/mua/profile', [DashboardController::class, 'updateProfile'])->name('mua.profile.update');
         Route::post('/mua/portfolio', [DashboardController::class, 'storePortfolio'])->name('mua.portfolio.store');
