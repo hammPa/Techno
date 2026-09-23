@@ -20,6 +20,7 @@ class Booking extends Model
         'status',
         'completion_code',
         'payment_status',
+        'payment_deadline',
         'notes',
         'cancellation_reason',
         'cancelled_by',
@@ -29,6 +30,7 @@ class Booking extends Model
     protected $casts = [
         'booking_date' => 'date',
         'cancelled_at' => 'datetime',
+        'payment_deadline' => 'datetime',
     ];
 
     public function client()

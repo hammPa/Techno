@@ -129,7 +129,15 @@ class BookingController extends Controller
         ]);
 
         // Jika MUA menerima pesanan, arahkan status ke waiting_payment agar client bayar
-        $booking->update(['status' => $validated['status']]);
+        $updateData = ['status' => $validated['status']];
+
+        if ($validated['status'] === 'waiting_payment') {
+            // Berikan batas waktu bayar (misal: 2 jam sejak MUA menyetujui)
+            // Ganti addHours(2) ke addHours(24) jika ingin batas 1 hari
+            $updateData['payment_deadline'] = now()->addHours(2);
+        }
+
+        $booking->update($updateData);
 
         return back()->with('success', 'Status pesanan berhasil diperbarui!');
     }

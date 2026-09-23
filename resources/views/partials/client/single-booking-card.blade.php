@@ -4,6 +4,7 @@
             <div class="flex flex-wrap items-center gap-2">
                 <h3 class="font-bold text-sm text-slate-800">{{ $b->service->title }}</h3>
 
+                {{-- Badge Status Reservasi --}}
                 @if($b->status === 'pending')
                     <span class="text-[10px] px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold">Menunggu Konfirmasi MUA</span>
                 @elseif($b->status === 'waiting_payment')
@@ -16,6 +17,7 @@
                     <span class="text-[10px] px-2.5 py-0.5 bg-red-100 text-red-800 rounded-full font-bold">Dibatalkan</span>
                 @endif
 
+                {{-- Badge Status Finansial --}}
                 @if($b->payment_status === 'waiting_verification')
                     <span class="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full font-semibold">Verifikasi Admin</span>
                 @elseif($b->payment_status === 'dp_paid')
@@ -25,7 +27,12 @@
                 @elseif($b->payment_status === 'released_to_mua')
                     <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">Dana Masuk MUA</span>
                 @endif
+
+                <a href="{{ route('bookings.show', $b->id) }}" class="text-[11px] font-semibold text-rose-600 hover:underline">
+                    Buka Halaman Detail ↗
+                </a>
             </div>
+
             <p class="text-xs text-slate-500 mt-1">MUA: <strong class="text-slate-700">{{ $b->mua->muaProfile->studio_name ?? $b->mua->name }}</strong></p>
             <p class="text-xs text-slate-600 mt-0.5">📅 {{ date('d M Y', strtotime($b->booking_date)) }} • Pukul {{ date('H:i', strtotime($b->booking_time)) }} WIB</p>
             <p class="text-[11px] text-slate-400 mt-1">📍 {{ $b->location_address }}</p>
@@ -58,7 +65,7 @@
         </div>
     </div>
 
-    <!-- Panel Aksi: Kode 4 Digit / Form Upload Pembayaran / Pelunasan -->
+    <!-- Panel Aksi -->
     <div class="mt-4">
         @php
             $lastRejectedPayment = $b->payments()->where('status', 'rejected')->latest()->first();
@@ -146,6 +153,28 @@
 
         @elseif($b->status === 'waiting_payment' && $b->payment_status === 'unpaid')
             <div class="bg-white border border-rose-200 rounded-2xl p-4 shadow-xs">
+                
+                {{-- Banner Batas Waktu Pembayaran --}}
+                @if($b->payment_deadline)
+                    <div class="mb-3.5 p-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg">⏰</span>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-wider opacity-90 block">Batas Waktu Pembayaran</span>
+                                <span class="text-xs font-semibold">
+                                    {{ $b->payment_deadline->translatedFormat('d M Y, H:i') }} WIB
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <span class="text-[10px] opacity-80 block">Sisa Waktu:</span>
+                            <span class="text-xs font-extrabold font-mono tracking-wide bg-white/20 px-2 py-0.5 rounded-md">
+                                {{ $b->payment_deadline->diffForHumans() }}
+                            </span>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="mb-3 p-3 bg-rose-50/70 border border-rose-100 rounded-xl">
                     <h5 class="text-xs font-bold text-rose-900 mb-1">💳 Rekening Resmi Platform GlowMUA:</h5>
                     <div class="text-xs text-slate-600 space-y-0.5">
