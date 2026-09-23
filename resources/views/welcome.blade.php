@@ -46,7 +46,7 @@
                 Jelajahi karya makeup artist resmi dan terverifikasi identitasnya untuk acara wisuda, wedding, lamaran, hingga photoshoot.
             </p>
 
-            <!-- Search Bar Mockup -->
+            <!-- Search Bar Form -->
             <form action="{{ route('home') }}#katalog" method="GET" class="mt-8 max-w-xl mx-auto bg-white p-2 sm:p-2.5 rounded-2xl shadow-lg shadow-rose-950/5 border border-rose-100 flex items-center gap-2">
                 @if(request('category'))
                     <input type="hidden" name="category" value="{{ request('category') }}">
@@ -54,7 +54,7 @@
                 <span class="pl-2 text-slate-400">🔍</span>
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama MUA, studio, atau kota domisili..." class="w-full text-xs sm:text-sm focus:outline-none bg-transparent">
                 @if(request('q'))
-                    <a href="{{ route('home') }}#katalog" class="text-xs text-slate-400 hover:text-rose-600 px-1">✕</a>
+                    <a href="{{ route('home', array_filter(['category' => request('category')])) }}#katalog" class="text-xs text-slate-400 hover:text-rose-600 px-1">✕</a>
                 @endif
                 <button type="submit" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition shrink-0">
                     Cari
@@ -67,7 +67,7 @@
                     $categories = [
                         '' => 'Semua',
                         'wedding' => 'Wedding',
-                        'graduation' => 'Wisuda',
+                        'wisuda' => 'Wisuda',
                         'engagement' => 'Lamaran',
                         'photoshoot' => 'Photoshoot',
                     ];
@@ -89,7 +89,7 @@
                         @if(request('q') || request('category'))
                             Hasil Pencarian
                             <span class="text-xs font-normal text-slate-400">
-                                ({{ $muaList->count() }} MUA ditemukan)
+                                ({{ $muaList->total() }} MUA ditemukan)
                             </span>
                         @else
                             Pilihan MUA Terpopuler
@@ -114,14 +114,14 @@
 
                     <div class="bg-white rounded-3xl border border-rose-100 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between">
                         <div>
-                            <!-- Foto Portofolio -->
+                            <!-- Foto Portofolio / Cover -->
                             <div class="h-48 bg-rose-50 relative overflow-hidden flex items-center justify-center">
                                 @if($mua->portfolios->isNotEmpty() && $mua->portfolios->first()->image_url)
                                     @php
-                                        $porto = $mua->portfolios->first();
-                                        $imgSrc = str_starts_with($porto->image_url, 'http')
-                                            ? $porto->image_url
-                                            : Storage::url($porto->image_url);
+                                        $firstImg = $mua->portfolios->first()->image_url;
+                                        $imgSrc = str_starts_with($firstImg, 'http')
+                                            ? $firstImg
+                                            : Storage::url($firstImg);
                                     @endphp
 
                                     <img
@@ -209,6 +209,11 @@
                         @endif
                     </div>
                 @endforelse
+            </div>
+
+            <!-- Navigasi Halaman Pagination -->
+            <div class="mt-8">
+                {{ $muaList->fragment('katalog')->links() }}
             </div>
         </section>
     </main>

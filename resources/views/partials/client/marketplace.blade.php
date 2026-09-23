@@ -4,7 +4,9 @@
             <h2 class="font-bold text-base text-slate-900">Katalog Pilihan Makeup Artist</h2>
             <p class="text-xs text-slate-400">Pilih MUA dan atur jadwal janji rias langsung</p>
         </div>
-        <span class="text-xs font-semibold text-rose-600">{{ $muaList->count() }} Terverifikasi</span>
+        <span class="text-xs font-semibold text-rose-600">
+            {{ method_exists($muaList, 'total') ? $muaList->total() : $muaList->count() }} Terverifikasi
+        </span>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -96,4 +98,10 @@
             </div>
         @endforelse
     </div>
+
+    @if(method_exists($muaList, 'links'))
+        <div class="mt-6">
+            {{ $muaList->fragment('marketplace')->links() }}
+        </div>
+    @endif
 </div>

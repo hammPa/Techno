@@ -59,7 +59,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/profile', [DashboardController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [DashboardController::class, 'updateAccount'])->name('profile.update');
-    
+
+    // detail bookingan bisa dilihat semua
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
 
     // KHUSUS MUA
     Route::middleware('role:mua')->group(function () {

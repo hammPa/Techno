@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Review;
 
+
 class BookingController extends Controller
 {
     /**
@@ -236,5 +237,26 @@ class BookingController extends Controller
         ]);
 
         return back()->with('success', 'Terima kasih! Ulasan Anda berhasil disimpan.');
+    }
+
+
+    public function show(Booking $booking)
+    {
+        $user = auth()->user();
+
+        // Validasi otorisasi: hanya pemesan, MUA terkait, atau admin
+        if ($booking->client_id !== $user->id && $booking->mua_id !== $user->id && $user->role !== 'admin') {
+            abort(403, 'Anda tidak memiliki hak akses ke rincian pesanan ini.');
+        }
+
+        $booking->load([
+            'service',
+            'client',
+            'mua.muaProfile',
+            'payments',
+            'review'
+        ]);
+
+        return view('dashboard.booking-detail', compact('booking'));
     }
 }

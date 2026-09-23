@@ -32,6 +32,9 @@
                             <span class="text-[10px] px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full font-semibold">
                                 Bayar: {{ strtoupper(str_replace('_', ' ', $bk->payment_status)) }}
                             </span>
+                            <a href="{{ route('bookings.show', $bk->id) }}" class="text-[11px] font-semibold text-rose-600 hover:underline">
+                                Buka Halaman Detail ↗
+                            </a>
                         </div>
                         <p class="text-xs text-slate-600 mt-1">Klien: <strong>{{ $bk->client->name }}</strong> (WA: <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $bk->client->phone) }}" target="_blank" class="text-rose-600 underline">{{ $bk->client->phone }}</a>)</p>
                         <p class="text-xs text-slate-500 mt-0.5">📅 {{ date('d M Y', strtotime($bk->booking_date)) }} • ⏰ Pukul {{ date('H:i', strtotime($bk->booking_time)) }} WIB</p>

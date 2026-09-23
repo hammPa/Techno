@@ -40,6 +40,9 @@
                             @elseif($b->payment_status === 'released_to_mua')
                                 <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full font-semibold">Dana Masuk MUA</span>
                             @endif
+                            <a href="{{ route('bookings.show', $b->id) }}" class="text-[11px] font-semibold text-rose-600 hover:underline">
+                                Buka Halaman Detail ↗
+                            </a>
                         </div>
                         <p class="text-xs text-slate-500 mt-1">MUA: <strong class="text-slate-700">{{ $b->mua->muaProfile->studio_name ?? $b->mua->name }}</strong></p>
                         <p class="text-xs text-slate-600 mt-0.5">📅 {{ date('d M Y', strtotime($b->booking_date)) }} • Pukul {{ date('H:i', strtotime($b->booking_time)) }} WIB</p>
