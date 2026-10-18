@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MUA Dashboard - GlowMUA</title>
+    <title>MUA Dashboard - TemuMUA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 
     <!-- Sidebar Desktop -->
     <aside class="hidden md:flex flex-col w-64 shrink-0 md:sticky md:top-0 md:h-screen bg-[#f3ece4] border-r border-[#3b2230]/10 px-6 py-8">
-        <a href="{{ route('home') }}" class="text-2xl [font-family:'Fraunces',serif] tracking-tight">GlowMUA</a>
+        <a href="{{ route('home') }}" class="text-2xl [font-family:'Fraunces',serif] tracking-tight">TemuMUA</a>
 
         <div class="mt-10 pb-6 border-b border-[#3b2230]/10">
             <span class="block text-xs text-[#3b2230]/55">Masuk sebagai partner MUA</span>

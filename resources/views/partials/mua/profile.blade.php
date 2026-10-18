@@ -51,7 +51,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <h2 class="text-2xl [font-family:'Fraunces',serif] font-normal">Akun</h2>
-                <p class="mt-1 text-sm text-[#3b2230]/60">Keluar dari akun GlowMUA Anda. Anda bisa masuk kembali kapan saja.</p>
+                <p class="mt-1 text-sm text-[#3b2230]/60">Keluar dari akun TemuMUA Anda. Anda bisa masuk kembali kapan saja.</p>
             </div>
             <form action="{{ route('logout') }}" method="POST" class="shrink-0">
                 @csrf

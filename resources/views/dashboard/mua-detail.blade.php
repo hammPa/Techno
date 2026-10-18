@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $mua->muaProfile->studio_name ?? $mua->name }} - GlowMUA</title>
+    <title>{{ $mua->muaProfile->studio_name ?? $mua->name }} - TemuMUA</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-rose-50/30 text-slate-800 antialiased min-h-screen py-6 px-4 sm:px-6 lg:px-8 font-sans">

@@ -1,3 +1,3 @@
-<footer class="bg-white border-t border-rose-100 py-6 text-center text-xs text-slate-400">
-    <p>© 2026 TemuMUA Platform. Direktori Makeup Artist Indonesia.</p>
+<footer class="py-6 text-center text-sm text-[#3b2230]/55 bg-white border-t border-[#3b2230]/10">
+    <p>&copy; 2026 TemuaMUA. Direktori Makeup Artist Indonesia.</p>
 </footer>

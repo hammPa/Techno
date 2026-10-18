@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Daftar - GlowMUA</title>
+    <title>Daftar - TemuMUA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
 
         <!-- Sisi kiri (desktop) -->
         <div class="hidden md:flex flex-col justify-between gap-10 bg-[#3b2230] text-white p-10 lg:px-14 lg:py-14">
-            <a href="{{ route('home') }}" class="self-start text-2xl [font-family:'Fraunces',serif] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm">GlowMUA</a>
+            <a href="{{ route('home') }}" class="self-start text-2xl [font-family:'Fraunces',serif] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-sm">TemuMUA</a>
 
             <div class="space-y-5">
                 <h2 class="text-3xl lg:text-[2.5rem] [font-family:'Fraunces',serif] font-normal leading-tight">
@@ -35,14 +35,14 @@
                 </ul>
             </div>
 
-            <p class="text-xs lg:text-sm text-white/50">&copy; 2026 GlowMUA</p>
+            <p class="text-xs lg:text-sm text-white/50">&copy; 2026 TemuMUA</p>
         </div>
 
         <!-- Sisi kanan (form) -->
         <div class="p-6 sm:p-10 lg:px-20 lg:py-14 flex flex-col justify-center">
             <div class="w-full max-w-md lg:max-w-xl mx-auto">
 
-                <a href="{{ route('home') }}" class="block mb-8 text-center text-2xl [font-family:'Fraunces',serif] md:hidden">GlowMUA</a>
+                <a href="{{ route('home') }}" class="block mb-8 text-center text-2xl [font-family:'Fraunces',serif] md:hidden">TemuMUA</a>
 
                 <div class="mb-6 text-center md:text-left">
                     <h1 class="text-3xl [font-family:'Fraunces',serif] font-normal">Buat akun</h1>

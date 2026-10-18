@@ -1,23 +1,25 @@
-<header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-rose-100">
+<header class="sticky top-0 z-40 bg-white border-b border-[#3b2230]/10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <a href="{{ route('home') }}" class="flex items-center gap-2 font-bold text-lg text-slate-900">
-            <span class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-sm shadow-sm">✨</span>
-            <span>Glow<span class="text-rose-600">MUA</span></span>
+        <a href="{{ route('home') }}" class="text-2xl [font-family:'Fraunces',serif] rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+            TemuMUA
         </a>
 
-        <div class="flex items-center gap-3">
+        <nav class="flex items-center gap-4" aria-label="Akun">
             @auth
-                <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm">
-                    Dashboard Saya →
+                <a href="{{ route('dashboard') }}"
+                   class="px-4 py-2 text-sm font-semibold text-white bg-[#3b2230] hover:bg-[#3b2230]/90 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#3b2230]/60">
+                    Dashboard saya
                 </a>
             @else
-                <a href="{{ route('login') }}" class="text-xs sm:text-sm font-semibold text-slate-600 hover:text-rose-600 transition">
+                <a href="{{ route('login') }}"
+                   class="text-sm font-semibold text-[#3b2230]/70 hover:text-[#3b2230] rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
                     Masuk
                 </a>
-                <a href="{{ route('register') }}" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm">
-                    Daftar Akun
+                <a href="{{ route('register') }}"
+                   class="px-4 py-2 text-sm font-semibold text-white bg-[#3b2230] hover:bg-[#3b2230]/90 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#3b2230]/60">
+                    Daftar akun
                 </a>
             @endauth
-        </div>
+        </nav>
     </div>
 </header>

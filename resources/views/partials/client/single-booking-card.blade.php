@@ -176,10 +176,10 @@
                 @endif
 
                 <div class="mb-3 p-3 bg-rose-50/70 border border-rose-100 rounded-xl">
-                    <h5 class="text-xs font-bold text-rose-900 mb-1">💳 Rekening Resmi Platform GlowMUA:</h5>
+                    <h5 class="text-xs font-bold text-rose-900 mb-1">💳 Rekening Resmi Platform TemuMUA:</h5>
                     <div class="text-xs text-slate-600 space-y-0.5">
-                        <p>• <strong>BCA:</strong> 8735-0921-12 (a/n GlowMUA Indonesia)</p>
-                        <p>• <strong>DANA / GoPay:</strong> 0812-3456-7890 (a/n Admin GlowMUA)</p>
+                        <p>• <strong>BCA:</strong> 8735-0921-12 (a/n TemuMUA Indonesia)</p>
+                        <p>• <strong>DANA / GoPay:</strong> 0812-3456-7890 (a/n Admin TemuMUA)</p>
                     </div>
                     <p class="text-[10px] text-rose-500 mt-1.5">* Pilih bayar Lunas (Full) atau DP 50% untuk booking jadwal.</p>
                 </div>
@@ -232,7 +232,7 @@
                 <span class="text-xl">⏳</span>
                 <div>
                     <h5 class="text-xs font-bold text-amber-900">Bukti Transfer Sedang Diverifikasi</h5>
-                    <p class="text-[11px] text-amber-700 mt-0.5">Admin GlowMUA sedang memeriksa mutasi pembayaran Anda. Status akan diperbarui segera setelah diverifikasi.</p>
+                    <p class="text-[11px] text-amber-700 mt-0.5">Admin TemuMUA sedang memeriksa mutasi pembayaran Anda. Status akan diperbarui segera setelah diverifikasi.</p>
                 </div>
             </div>
 
@@ -241,7 +241,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div class="flex items-center gap-2">
                         <span class="text-base">🎉</span>
-                        <span class="text-xs font-semibold text-blue-900">Layanan selesai dilaksanakan. Terima kasih telah menggunakan GlowMUA!</span>
+                        <span class="text-xs font-semibold text-blue-900">Layanan selesai dilaksanakan. Terima kasih telah menggunakan TemuMUA!</span>
                     </div>
 
                     @if(!$b->review)

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detail Reservasi #{{ $booking->id }} - GlowMUA</title>
+    <title>Detail Reservasi #{{ $booking->id }} - TemuMUA</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-rose-50/30 text-slate-800 antialiased min-h-screen py-8 px-4 font-sans">
