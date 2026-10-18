@@ -148,8 +148,8 @@
                                 </div>
                                 <div class="shrink-0 sm:text-right">
                                     <span class="block text-2xl [font-family:'Fraunces',serif] leading-tight">Rp {{ number_format($srv->price, 0, ',', '.') }}</span>
-                                    <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode("Halo {$mua->name}, saya ingin booking paket '{$srv->title}' seharga Rp " . number_format($srv->price, 0, ',', '.')) }}" target="_blank" rel="noopener"
-                                        class="inline-block mt-1.5 text-sm underline underline-offset-4 decoration-[#3b2230]/30 hover:decoration-[#3b2230]">
+                                    <a href="#reservasi" data-service-id="{{ $srv->id }}"
+                                        class="js-pick-service inline-block mt-1.5 text-sm underline underline-offset-4 decoration-[#3b2230]/30 hover:decoration-[#3b2230]">
                                         Atur tanggal booking →
                                     </a>
                                 </div>
@@ -190,7 +190,7 @@
             </div>
 
             <!-- Form reservasi (menempel di desktop) -->
-            <aside class="lg:sticky lg:top-6 p-6 sm:p-7 bg-white border border-[#3b2230]/10 rounded-lg">
+            <aside id="reservasi" class="scroll-mt-6 lg:sticky lg:top-6 p-6 sm:p-7 bg-white border border-[#3b2230]/10 rounded-lg">
                 <h2 class="text-2xl [font-family:'Fraunces',serif] font-normal">Reservasi jadwal rias</h2>
                 <p class="mt-1.5 mb-6 text-sm text-[#3b2230]/60">Tentukan jadwal rias dan lokasi acara Anda.</p>
 
@@ -311,6 +311,21 @@
             dateInput.addEventListener('change', checkAvailability);
             if (dateInput.value) checkAvailability();
         }
+
+        // Tombol "Atur tanggal booking" pada tiap paket: pilih paketnya di form, lalu fokus ke tanggal
+        document.querySelectorAll('.js-pick-service').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const select = document.getElementById('service_id');
+                if (select) select.value = link.dataset.serviceId;
+
+                const target = document.getElementById('reservasi');
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                if (dateInput) setTimeout(function () { dateInput.focus({ preventScroll: true }); }, 400);
+            });
+        });
     </script>
 </body>
 </html>
