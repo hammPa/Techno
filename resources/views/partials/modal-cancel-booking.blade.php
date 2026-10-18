@@ -1,38 +1,41 @@
-<!-- Modal Konfirmasi Pembatalan Booking -->
-<div id="cancelModal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border border-slate-100 transition-all">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div class="flex items-center gap-2">
-                <span class="p-2 bg-rose-100 text-rose-600 rounded-xl text-sm font-bold">✕</span>
-                <h3 class="text-sm sm:text-base font-bold text-slate-900">Batalkan Reservasi</h3>
+<div id="cancelModal" role="dialog" aria-modal="true" aria-labelledby="cancelModalTitle"
+    class="fixed inset-0 z-50 hidden items-center justify-center overflow-y-auto p-4 bg-[#3b2230]/50">
+    <div class="w-full max-w-md p-6 sm:p-7 bg-white border border-[#3b2230]/10 rounded-lg">
+
+        <div class="flex items-start justify-between gap-4 mb-5">
+            <div>
+                <h3 id="cancelModalTitle" class="text-2xl [font-family:'Fraunces',serif] font-normal">Batalkan reservasi</h3>
+                <p class="mt-1 text-sm text-[#3b2230]/60">Alasan ini dicatat di riwayat reservasi.</p>
             </div>
-            <button type="button" onclick="closeCancelModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            <button type="button" onclick="closeCancelModal()" aria-label="Tutup"
+                class="shrink-0 p-1 text-[#3b2230]/50 hover:text-[#3b2230] rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
 
-        <form id="cancelBookingForm" method="POST" class="mt-4 space-y-4">
+        <form id="cancelBookingForm" method="POST" class="space-y-4">
             @csrf
             @method('PATCH')
 
             <div>
-                <label for="cancellation_reason" class="block text-xs font-bold text-slate-700 mb-1">
-                    Alasan Pembatalan <span class="text-rose-500">*</span>
+                <label for="cancellation_reason" class="block mb-1.5 text-sm font-medium text-[#3b2230]/80">
+                    Alasan pembatalan
                 </label>
-                <textarea 
-                    name="cancellation_reason" 
-                    id="cancellation_reason" 
-                    rows="3" 
-                    required 
-                    placeholder="Tulis alasan pembatalan pesanan..." 
-                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:bg-white resize-none"></textarea>
-                <p class="text-[11px] text-slate-400 mt-1">Alasan pembatalan ini akan dicatat dalam riwayat reservasi.</p>
+                <textarea name="cancellation_reason" id="cancellation_reason" rows="3" required
+                    placeholder="Tulis alasan pembatalan pesanan"
+                    class="w-full px-3.5 py-2.5 bg-white rounded-md border border-[#3b2230]/15 text-sm placeholder:text-[#3b2230]/35 resize-none focus:outline-none focus:border-[#3b2230]/50 focus-visible:ring-2 focus-visible:ring-[#3b2230]/30 transition-colors"></textarea>
             </div>
 
-            <div class="flex items-center justify-end gap-2 pt-2">
-                <button type="button" onclick="closeCancelModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
-                    Batal
+            <div class="flex items-center justify-end gap-3 pt-5 border-t border-[#3b2230]/10">
+                <button type="button" onclick="closeCancelModal()"
+                    class="px-4 py-2.5 text-sm font-semibold text-[#3b2230]/70 hover:text-[#3b2230] hover:bg-[#3b2230]/[0.05] rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+                    Kembali
                 </button>
-                <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm transition">
-                    Konfirmasi Pembatalan
+                <button type="submit"
+                    class="px-5 py-2.5 text-sm font-semibold text-white bg-red-700 hover:bg-red-800 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-700/60">
+                    Batalkan reservasi
                 </button>
             </div>
         </form>
@@ -43,25 +46,30 @@
     function openCancelModal(bookingId) {
         const modal = document.getElementById('cancelModal');
         const form = document.getElementById('cancelBookingForm');
-        if (modal && form) {
-            form.action = `/bookings/${bookingId}/cancel`;
-            const reasonInput = document.getElementById('cancellation_reason');
-            if (reasonInput) reasonInput.value = '';
-            modal.classList.remove('hidden');
-        }
+        if (!modal || !form) return;
+
+        form.action = `/bookings/${bookingId}/cancel`;
+        const reasonInput = document.getElementById('cancellation_reason');
+        if (reasonInput) reasonInput.value = '';
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (reasonInput) reasonInput.focus();
     }
 
     function closeCancelModal() {
         const modal = document.getElementById('cancelModal');
-        if (modal) {
-            modal.classList.add('hidden');
-        }
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 
-    window.addEventListener('click', function(e) {
+    window.addEventListener('click', function (e) {
+        if (e.target === document.getElementById('cancelModal')) closeCancelModal();
+    });
+
+    window.addEventListener('keydown', function (e) {
         const modal = document.getElementById('cancelModal');
-        if (e.target === modal) {
-            closeCancelModal();
-        }
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeCancelModal();
     });
 </script>

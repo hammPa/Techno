@@ -1,51 +1,73 @@
-<div class="bg-white rounded-3xl border border-rose-100 p-5 sm:p-6 shadow-sm">
-    <div class="flex items-center justify-between mb-3">
+{{--
+    partials/mua/portfolio.blade.php
+    Desain disamakan dengan overview.blade.php. Variabel: $portfolios (field: title, image_url).
+--}}
+@php
+    $inputClass = 'w-full px-3 py-2 bg-white rounded-md border border-[#3b2230]/15 text-sm placeholder:text-[#3b2230]/35 focus:outline-none focus:border-[#3b2230]/50 focus-visible:ring-2 focus-visible:ring-[#3b2230]/40';
+    $labelClass = 'block mb-1 text-xs font-medium text-[#3b2230]/70';
+@endphp
+
+<section class="p-6 sm:p-7 bg-white border border-[#3b2230]/10 rounded-lg">
+    <div class="flex items-baseline justify-between gap-4 mb-5">
         <div>
-            <h2 class="font-bold text-base text-slate-900">Foto Portofolio Riasan</h2>
-            <p class="text-xs text-slate-400">Unggah hasil karya rias terbaik untuk menarik minat calon klien</p>
+            <h2 class="text-2xl [font-family:'Fraunces',serif] font-normal">Foto portofolio</h2>
+            <p class="mt-1 text-sm text-[#3b2230]/60">Unggah hasil rias terbaik untuk menarik calon klien.</p>
         </div>
-        <span class="text-xs font-bold text-rose-600">{{ $portfolios->count() }} Foto</span>
+        <span class="shrink-0 text-sm text-[#3b2230]/60">{{ $portfolios->count() }} foto</span>
     </div>
 
-    <!-- Form Upload Foto Portofolio -->
-    <form action="{{ route('mua.portfolio.store') }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+    <!-- Form upload -->
+    <form action="{{ route('mua.portfolio.store') }}" method="POST" enctype="multipart/form-data"
+        class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 mb-6 border border-[#3b2230]/10 rounded-md bg-[#3b2230]/[0.03]">
         @csrf
         <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Judul Riasan</label>
-            <input type="text" name="title" required placeholder="Contoh: Wisuda Flawless Glowing"
-                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-rose-500">
+            <label for="pf-title" class="{{ $labelClass }}">Judul riasan</label>
+            <input id="pf-title" type="text" name="title" required placeholder="Contoh: Wisuda flawless glowing" class="{{ $inputClass }}">
         </div>
         <div>
-            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilih File Foto (Maks 3MB)</label>
-            <input type="file" name="image" accept="image/*" required
-                class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-rose-600 transition">
+            <label for="pf-image" class="{{ $labelClass }}">File foto (maks. 3 MB)</label>
+            <input id="pf-image" type="file" name="image" accept="image/*" required
+                class="w-full text-sm text-[#3b2230]/60 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#3b2230]/[0.08] file:text-[#3b2230] hover:file:bg-[#3b2230]/[0.14] file:cursor-pointer">
         </div>
         <div class="sm:self-end">
-            <button type="submit" class="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition shadow-xs">
-                + Upload Portofolio
+            <button type="submit"
+                class="w-full px-5 py-2.5 text-sm font-semibold text-white bg-[#3b2230] hover:bg-[#3b2230]/90 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#3b2230]/60">
+                Unggah foto
             </button>
         </div>
     </form>
 
-    <!-- Grid List Portofolio -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        @forelse($portfolios as $p)
-            <div class="relative group rounded-xl overflow-hidden border border-slate-100 shadow-xs">
+    <!-- Galeri -->
+    @if($portfolios->isNotEmpty())
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            @foreach($portfolios as $p)
                 @php
                     $src = str_starts_with($p->image_url, 'http') ? $p->image_url : Storage::url($p->image_url);
                 @endphp
-                <img src="{{ $src }}" alt="{{ $p->title }}" class="w-full h-32 object-cover group-hover:scale-105 transition duration-300">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-between">
-                    <form action="{{ route('mua.portfolio.destroy', $p->id) }}" method="POST" class="self-end" onsubmit="return confirm('Hapus foto ini dari portofolio?')">
+                <figure class="relative">
+                    <div class="aspect-[4/5] overflow-hidden rounded-md bg-[#3b2230]/[0.07]">
+                        <img src="{{ $src }}" alt="{{ $p->title }}" loading="lazy" class="w-full h-full object-cover">
+                    </div>
+
+                    <form action="{{ route('mua.portfolio.destroy', $p->id) }}" method="POST"
+                        class="absolute top-2 right-2" onsubmit="return confirm('Hapus foto ini dari portofolio?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs shadow-xs font-bold hover:bg-red-700">×</button>
+                        <button type="submit" aria-label="Hapus foto {{ $p->title }}"
+                            class="w-7 h-7 flex items-center justify-center rounded-md bg-white/90 text-red-700 hover:bg-white border border-[#3b2230]/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-700/50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </form>
-                    <span class="text-[10px] text-white font-medium truncate">{{ $p->title }}</span>
-                </div>
-            </div>
-        @empty
-            <p class="col-span-full text-xs text-slate-400 text-center py-6">Belum ada foto portofolio yang diunggah.</p>
-        @endforelse
-    </div>
-</div>
+
+                    <figcaption class="mt-2 text-sm truncate">{{ $p->title }}</figcaption>
+                </figure>
+            @endforeach
+        </div>
+    @else
+        <div class="py-12 text-center border border-dashed border-[#3b2230]/20 rounded-md">
+            <p class="text-sm text-[#3b2230]/60">Belum ada foto portofolio. Unggah foto pertama lewat form di atas.</p>
+        </div>
+    @endif
+</section>

@@ -77,7 +77,13 @@ class DashboardController extends Controller
                 0 => 'Minggu',
             ];
 
-            return view('dashboard.mua', compact('user', 'profile', 'services', 'portfolios', 'bookings', 'myPayouts', 'schedules', 'days'));
+            $reviews = $user->muaReviews()->with('client')->latest()->take(3)->get();
+            $reviewsCount = $user->muaReviews()->count();
+
+            return view('dashboard.mua', compact(
+                'user', 'profile', 'services', 'portfolios', 'bookings',
+                'myPayouts', 'schedules', 'days', 'reviews', 'reviewsCount'
+            ));
         }
 
         // 3. JIKA YANG LOGIN KLIEN

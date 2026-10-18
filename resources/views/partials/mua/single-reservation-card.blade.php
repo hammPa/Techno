@@ -1,93 +1,114 @@
-<div class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200">
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div data-booking-status="{{ $bk->status }}" class="p-5 sm:p-6 bg-[#faf6f1] border border-[#3b2230]/10 rounded-lg">
+
+    <!-- Jenis makeup + status job -->
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h3 class="text-xl [font-family:'Fraunces',serif] font-normal leading-tight">{{ $bk->service->title }}</h3>
+
+        @if($bk->status === 'pending')
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-[#f3e6c8] text-[#7a5a14]">Permintaan baru</span>
+        @elseif($bk->status === 'waiting_payment')
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-[#3b2230]/[0.10] text-[#3b2230]">Menunggu bayar klien</span>
+        @elseif($bk->status === 'confirmed')
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-[#e5eee6] text-[#2f5a3c]">Jadwal fix, siap melayani</span>
+        @elseif($bk->status === 'completed')
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-[#3b2230] text-[#faf6f1]">Selesai, dana cair</span>
+        @else
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium border border-[#3b2230]/25 text-[#3b2230]/60">Dibatalkan</span>
+        @endif
+    </div>
+
+    <a href="{{ route('bookings.show', $bk->id) }}"
+        class="inline-block mt-3 px-3 py-1.5 bg-white border border-[#3b2230]/20 rounded-md text-xs font-medium hover:border-[#3b2230] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+        Lihat detail pesanan
+    </a>
+
+    <!-- Data pesanan -->
+    <dl class="mt-5 grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+        <dt class="text-[#3b2230]/55">Klien</dt>
+        <dd>
+            <span class="font-medium">{{ $bk->client->name }}</span>
+            @if($bk->client->phone)
+                <span class="text-[#3b2230]/55"> · WA</span>
+                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $bk->client->phone) }}" target="_blank" rel="noopener"
+                    class="underline underline-offset-4 decoration-[#3b2230]/30 hover:decoration-[#3b2230]">{{ $bk->client->phone }}</a>
+            @endif
+        </dd>
+
+        <dt class="text-[#3b2230]/55">Tanggal pemesanan</dt>
+        <dd>{{ $bk->created_at->format('d-m-Y') }}</dd>
+
+        <dt class="text-[#3b2230]/55">Tanggal booking</dt>
+        <dd>{{ \Carbon\Carbon::parse($bk->booking_date)->format('d-m-Y') }}, pukul {{ date('H:i', strtotime($bk->booking_time)) }} WIB</dd>
+
+        <dt class="text-[#3b2230]/55">Alamat</dt>
+        <dd>{{ $bk->location_address }}</dd>
+
+        @if($bk->notes)
+            <dt class="text-[#3b2230]/55">Catatan</dt>
+            <dd class="italic text-[#3b2230]/75">“{{ $bk->notes }}”</dd>
+        @endif
+    </dl>
+
+    {{-- Alasan jika dibatalkan --}}
+    @if($bk->status === 'cancelled' && $bk->cancellation_reason)
+        <div class="mt-4 px-4 py-3 border-l-2 border-[#3b2230]/50 bg-[#3b2230]/[0.06] text-sm text-[#3b2230]">
+            <span class="font-semibold">Alasan batal:</span> {{ $bk->cancellation_reason }}
+        </div>
+    @endif
+
+    <!-- Total biaya + aksi -->
+    <div class="mt-5 pt-5 border-t border-[#3b2230]/10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-            <div class="flex flex-wrap items-center gap-2">
-                <h4 class="font-bold text-sm text-slate-900">{{ $bk->service->title }}</h4>
-                
-                {{-- Badge Status Reservasi --}}
-                @if($bk->status === 'pending')
-                    <span class="text-[10px] px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full font-bold">Permintaan Baru</span>
-                @elseif($bk->status === 'waiting_payment')
-                    <span class="text-[10px] px-2.5 py-0.5 bg-rose-100 text-rose-700 rounded-full font-bold">Menunggu Bayar Klien</span>
-                @elseif($bk->status === 'confirmed')
-                    <span class="text-[10px] px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-bold">Jadwal Fix / Siap Melayani</span>
-                @elseif($bk->status === 'completed')
-                    <span class="text-[10px] px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full font-bold">Selesai & Dana Cair</span>
-                @else
-                    <span class="text-[10px] px-2.5 py-0.5 bg-red-100 text-red-700 rounded-full font-bold">Dibatalkan</span>
-                @endif
-
-                {{-- Badge Status Finansial --}}
-                <span class="text-[10px] px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full font-semibold">
-                    Bayar: {{ strtoupper(str_replace('_', ' ', $bk->payment_status)) }}
-                </span>
-            </div>
-            <p class="text-xs text-slate-600 mt-1">Klien: <strong>{{ $bk->client->name }}</strong> (WA: <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $bk->client->phone) }}" target="_blank" class="text-rose-600 underline">{{ $bk->client->phone }}</a>)</p>
-            <p class="text-xs text-slate-500 mt-0.5">📅 {{ date('d M Y', strtotime($bk->booking_date)) }} • ⏰ Pukul {{ date('H:i', strtotime($bk->booking_time)) }} WIB</p>
-            <p class="text-[11px] text-slate-500 mt-1">📍 {{ $bk->location_address }}</p>
-            @if($bk->notes)
-                <p class="text-[11px] text-slate-400 italic mt-0.5">Catatan: "{{ $bk->notes }}"</p>
-            @endif
-
-            {{-- Keterangan Alasan jika Dibatalkan --}}
-            @if($bk->status === 'cancelled' && $bk->cancellation_reason)
-                <div class="mt-2 text-[11px] text-rose-700 bg-rose-50 border border-rose-200/70 px-3 py-1.5 rounded-xl inline-block">
-                    <strong>Alasan Batal:</strong> {{ $bk->cancellation_reason }}
-                </div>
-            @endif
+            <span class="block text-xs text-[#3b2230]/55">Total biaya</span>
+            <span class="block text-2xl [font-family:'Fraunces',serif] leading-tight">Rp {{ number_format($bk->total_price, 0, ',', '.') }}</span>
+            <span class="block mt-1 text-xs text-[#3b2230]/55">Pembayaran: {{ strtolower(str_replace('_', ' ', $bk->payment_status)) }}</span>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-200">
-            <span class="font-extrabold text-base text-rose-600">Rp {{ number_format($bk->total_price, 0, ',', '.') }}</span>
-
-            {{-- Aksi MUA Berdasarkan Status --}}
-            @if($bk->status === 'pending')
-                <div class="flex items-center gap-2">
-                    <form action="{{ route('bookings.updateStatus', $bk->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <input type="hidden" name="status" value="waiting_payment">
-                        <button type="submit" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition shadow-xs">
-                            Terima Jadwal
-                        </button>
-                    </form>
-
-                    <button type="button" 
-                        onclick="openCancelModal('{{ $bk->id }}')" 
-                        class="px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl text-xs font-semibold transition">
-                        Tolak
-                    </button>
-                </div>
-
-            @elseif($bk->status === 'waiting_payment')
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-amber-700 bg-amber-100/70 border border-amber-200 px-3 py-1.5 rounded-xl font-medium">
-                        Menunggu Bayar
-                    </span>
-                    @if($bk->payment_status === 'unpaid')
-                        <button type="button" 
-                            onclick="openCancelModal('{{ $bk->id }}')" 
-                            class="px-3 py-1.5 border border-rose-300 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-semibold transition">
-                            Batalkan
-                        </button>
-                    @endif
-                </div>
-
-            @elseif($bk->status === 'confirmed')
-                <form action="{{ route('bookings.complete', $bk->id) }}" method="POST" class="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-white p-2 border border-slate-200 rounded-2xl shadow-xs">
+        {{-- Aksi MUA berdasarkan status --}}
+        @if($bk->status === 'pending')
+            <div class="flex items-center gap-2">
+                <form action="{{ route('bookings.updateStatus', $bk->id) }}" method="POST">
                     @csrf
-                    <input type="text" name="completion_code" maxlength="4" placeholder="Kode 4-Digit" required
-                        class="w-28 text-center font-mono font-bold tracking-widest text-xs px-2 py-1.5 bg-slate-50 border border-slate-300 rounded-xl focus:border-rose-500 focus:outline-none">
-                    <button type="submit" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition whitespace-nowrap">
-                        ✓ Selesaikan Job
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="waiting_payment">
+                    <button type="submit"
+                        class="px-4 py-2.5 bg-[#3b2230] hover:bg-[#2a1620] text-[#faf6f1] rounded-md text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf6f1] focus-visible:ring-[#3b2230]">
+                        Terima jadwal
                     </button>
                 </form>
+                <button type="button" onclick="openCancelModal('{{ $bk->id }}')"
+                    class="px-4 py-2.5 bg-white border border-[#3b2230]/25 hover:border-[#3b2230] rounded-md text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+                    Tolak
+                </button>
+            </div>
 
-            @elseif($bk->status === 'completed')
-                <span class="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl font-semibold">
-                    ✓ Job Selesai & Terverifikasi
-                </span>
-            @endif
-        </div>
+        @elseif($bk->status === 'waiting_payment')
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-[#3b2230]/65">Menunggu pembayaran klien</span>
+                {{-- Jika klien tak kunjung bayar, MUA bisa membatalkan pesanan unpaid --}}
+                @if($bk->payment_status === 'unpaid')
+                    <button type="button" onclick="openCancelModal('{{ $bk->id }}')"
+                        class="px-4 py-2.5 bg-white border border-[#3b2230]/25 hover:border-[#3b2230] rounded-md text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+                        Batalkan
+                    </button>
+                @endif
+            </div>
+
+        @elseif($bk->status === 'confirmed')
+            {{-- Validasi kode 4 digit dari klien --}}
+            <form action="{{ route('bookings.complete', $bk->id) }}" method="POST" class="flex items-center gap-2">
+                @csrf
+                <label for="completion-code-{{ $bk->id }}" class="sr-only">Kode 4 digit dari klien</label>
+                <input id="completion-code-{{ $bk->id }}" type="text" name="completion_code" maxlength="4" inputmode="numeric" placeholder="Kode 4 digit" required
+                    class="w-32 px-3 py-2.5 text-center font-mono font-semibold tracking-widest text-sm bg-white border border-[#3b2230]/25 rounded-md placeholder:font-sans placeholder:font-normal placeholder:tracking-normal placeholder:text-[#3b2230]/30 focus:outline-none focus:ring-0 focus:border-[#3b2230]">
+                <button type="submit"
+                    class="px-4 py-2.5 bg-[#3b2230] hover:bg-[#2a1620] text-[#faf6f1] rounded-md text-sm font-medium whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf6f1] focus-visible:ring-[#3b2230]">
+                    Selesaikan job
+                </button>
+            </form>
+
+        @elseif($bk->status === 'completed')
+            <span class="text-sm font-medium text-[#2f5a3c]">Job selesai dan terverifikasi</span>
+        @endif
     </div>
 </div>

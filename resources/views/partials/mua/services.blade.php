@@ -1,25 +1,36 @@
-<div class="bg-white rounded-3xl border border-rose-100 p-5 sm:p-6 shadow-sm mb-8">
-    <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+@php
+    $categoryLabels = [
+        'graduation' => 'Wisuda',
+        'wedding'    => 'Wedding',
+        'engagement' => 'Lamaran',
+        'photoshoot' => 'Photoshoot',
+        'other'      => 'Lainnya',
+    ];
+    $inputClass = 'w-full px-3 py-2 bg-white rounded-md border border-[#3b2230]/15 text-sm placeholder:text-[#3b2230]/35 focus:outline-none focus:border-[#3b2230]/50 focus-visible:ring-2 focus-visible:ring-[#3b2230]/40';
+    $labelClass = 'block mb-1 text-xs font-medium text-[#3b2230]/70';
+@endphp
+
+<section class="p-6 sm:p-7 bg-white border border-[#3b2230]/10 rounded-lg mb-6">
+    <div class="flex items-baseline justify-between gap-4 mb-5">
         <div>
-            <h2 class="font-bold text-base text-slate-900">Katalog Paket Layanan MUA</h2>
-            <p class="text-xs text-slate-400">Paket yang akan tampil dan bisa dipesan oleh calon klien</p>
+            <h2 class="text-2xl [font-family:'Fraunces',serif] font-normal">Paket rias</h2>
+            <p class="mt-1 text-sm text-[#3b2230]/60">Paket yang tampil dan bisa dipesan oleh calon klien.</p>
         </div>
-        <span class="text-xs font-bold text-rose-600">{{ $services->count() }} Paket Tersedia</span>
+        <span class="shrink-0 text-sm text-[#3b2230]/60">{{ $services->count() }} paket</span>
     </div>
 
-    <!-- Form Tambah Paket Baru -->
-    <form action="{{ route('services.store') }}" method="POST" class="bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 mb-6 space-y-3">
+    <!-- Form tambah paket -->
+    <form action="{{ route('services.store') }}" method="POST" class="p-4 mb-6 space-y-3 border border-[#3b2230]/10 rounded-md bg-[#3b2230]/[0.03]">
         @csrf
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div class="sm:col-span-2">
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nama Paket Rias</label>
-                <input type="text" name="title" required placeholder="Contoh: Makeup Wisuda Glowing"
-                    class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                <label for="svc-title" class="{{ $labelClass }}">Nama paket</label>
+                <input id="svc-title" type="text" name="title" required placeholder="Contoh: Makeup wisuda glowing" class="{{ $inputClass }}">
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Kategori</label>
-                <select name="category" required class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                <label for="svc-category" class="{{ $labelClass }}">Kategori</label>
+                <select id="svc-category" name="category" required class="{{ $inputClass }}">
                     <option value="graduation">Wisuda / Graduation</option>
                     <option value="wedding">Wedding / Bridal</option>
                     <option value="engagement">Lamaran / Engagement</option>
@@ -29,76 +40,70 @@
             </div>
 
             <div>
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Harga (Rp)</label>
-                <input type="number" name="price" required placeholder="Contoh: 350000" min="0" step="5000"
-                    class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                <label for="svc-price" class="{{ $labelClass }}">Harga (Rp)</label>
+                <input id="svc-price" type="number" name="price" required placeholder="350000" min="0" step="5000" class="{{ $inputClass }}">
             </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Durasi (Menit)</label>
-                <input type="number" name="duration_minutes" value="120" required min="15" step="15"
-                    class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                <label for="svc-duration" class="{{ $labelClass }}">Durasi (menit)</label>
+                <input id="svc-duration" type="number" name="duration_minutes" value="120" required min="15" step="15" class="{{ $inputClass }}">
             </div>
 
             <div class="sm:col-span-3">
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Keterangan / Fasilitas</label>
-                <input type="text" name="description" placeholder="Termasuk hairdo/hijab do, bulu mata premium, dll."
-                    class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:border-rose-500">
+                <label for="svc-desc" class="{{ $labelClass }}">Keterangan / fasilitas</label>
+                <input id="svc-desc" type="text" name="description" placeholder="Termasuk hairdo/hijab do, bulu mata premium, dll." class="{{ $inputClass }}">
             </div>
         </div>
 
-        <div class="text-right pt-1">
-            <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-xs transition shadow-sm">
-                + Tambah Paket
+        <div class="flex justify-end">
+            <button type="submit"
+                class="px-5 py-2.5 text-sm font-semibold text-white bg-[#3b2230] hover:bg-[#3b2230]/90 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#3b2230]/60">
+                Tambah paket
             </button>
         </div>
     </form>
 
-    <!-- List Paket Tersimpan -->
-    <div class="space-y-3">
+    <!-- Daftar paket -->
+    <div class="border border-[#3b2230]/10 rounded-md divide-y divide-[#3b2230]/10">
         @forelse($services as $item)
-            <div class="p-4 rounded-2xl bg-white border border-rose-100/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-start gap-3">
-                    <span class="p-2.5 bg-rose-100 text-rose-700 rounded-xl text-base">💄</span>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h4 class="font-bold text-sm text-slate-800">{{ $item->title }}</h4>
-                            <span class="text-[10px] px-2 py-0.5 bg-rose-50 text-rose-700 rounded-full font-semibold uppercase tracking-wider">{{ $item->category }}</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-0.5">{{ $item->description ?? 'Tidak ada keterangan tambahan.' }}</p>
-                        <span class="text-[11px] text-slate-400 mt-1 block">⏱ Durasi: {{ $item->duration_minutes }} menit</span>
+            <article class="p-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="text-sm font-semibold">{{ $item->title }}</h3>
+                        <span class="px-2 py-0.5 text-xs rounded-sm bg-[#3b2230]/[0.07] text-[#3b2230]/70">
+                            {{ $categoryLabels[$item->category] ?? $item->category }}
+                        </span>
                     </div>
+                    <p class="mt-1 text-sm leading-relaxed text-[#3b2230]/70">{{ $item->description ?? 'Tidak ada keterangan tambahan.' }}</p>
+                    <p class="mt-1 text-xs text-[#3b2230]/50">Durasi {{ $item->duration_minutes }} menit</p>
                 </div>
 
-                <div class="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100">
-                    <span class="font-extrabold text-sm sm:text-base text-rose-600">
-                        Rp {{ number_format($item->price, 0, ',', '.') }}
-                    </span>
-                    
-                    <div class="flex items-center gap-1">
-                        <!-- Link ke Halaman Edit Terpisah -->
-                        <a href="{{ route('services.edit', $item->id) }}" 
-                        class="text-xs px-2.5 py-1 text-amber-600 hover:bg-amber-50 rounded-lg transition font-semibold">
+                <div class="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                    <span class="text-sm font-semibold">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
+
+                    <div class="flex items-center gap-3 text-sm">
+                        <a href="{{ route('services.edit', $item->id) }}"
+                           class="text-[#3b2230]/60 hover:text-[#3b2230] underline underline-offset-4 decoration-[#3b2230]/25 hover:decoration-[#3b2230] rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
                             Edit
                         </a>
 
-                        <!-- Tombol Hapus -->
-                        <form action="{{ route('services.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus paket riasan ini?')">
+                        <form action="{{ route('services.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus paket rias ini?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-xs px-2.5 py-1 text-red-500 hover:bg-red-50 rounded-lg transition font-semibold">
+                            <button type="submit"
+                                class="text-red-700/80 hover:text-red-700 underline underline-offset-4 decoration-red-700/25 hover:decoration-red-700 rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-red-700/40">
                                 Hapus
                             </button>
                         </form>
                     </div>
                 </div>
-            </div>
+            </article>
         @empty
-            <div class="text-center py-8 text-slate-400 text-xs">
-                Belum ada paket riasan yang ditambahkan. Buat paket pertama Anda pada form di atas.
+            <div class="py-12 text-center">
+                <p class="text-sm text-[#3b2230]/60">Belum ada paket rias. Buat paket pertama lewat form di atas.</p>
             </div>
         @endforelse
     </div>
-</div>
+</section>

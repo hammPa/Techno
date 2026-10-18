@@ -3,29 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Paket Riasan</title>
+    <title>Edit Paket Rias - GlowMUA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 antialiased py-8 sm:py-12">
+@php
+    $inputClass = 'w-full px-3.5 py-2.5 bg-white rounded-md border border-[#3b2230]/15 text-sm placeholder:text-[#3b2230]/35 focus:outline-none focus:border-[#3b2230]/50 focus-visible:ring-2 focus-visible:ring-[#3b2230]/30 transition-colors';
+    $labelClass = 'block mb-1.5 text-sm font-medium text-[#3b2230]/80';
+    $categories = [
+        'graduation' => 'Wisuda / Graduation',
+        'wedding'    => 'Wedding / Bridal',
+        'engagement' => 'Lamaran / Engagement',
+        'photoshoot' => 'Photoshoot / Studio',
+        'other'      => 'Lainnya',
+    ];
+@endphp
+<body class="bg-[#3b2230]/[0.04] text-[#3b2230] min-h-screen antialiased py-8 sm:py-12">
     <div class="max-w-2xl mx-auto px-4">
-        
-        <!-- Header Halaman -->
-        <div class="mb-6 flex items-center justify-between gap-4">
-            <div>
-                <h1 class="font-bold text-xl sm:text-2xl text-slate-900">Edit Paket Riasan</h1>
-                <p class="text-xs sm:text-sm text-slate-400 mt-1">Sesuaikan tarif, durasi kerja, atau fasilitas layanan Anda</p>
-            </div>
-            <a href="{{ route('dashboard') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl transition shadow-xs whitespace-nowrap">
-                ← Batal & Kembali
-            </a>
-        </div>
 
-        <!-- Alert Error Validasi jika ada -->
+        <a href="{{ route('dashboard') }}"
+           class="inline-block mb-5 text-sm text-[#3b2230]/60 hover:text-[#3b2230] underline underline-offset-4 decoration-[#3b2230]/25 hover:decoration-[#3b2230] rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+            Kembali ke dashboard
+        </a>
+
         @if($errors->any())
-            <div class="mb-5 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs font-semibold">
-                <p class="font-bold mb-1">Periksa kembali data yang dimasukkan:</p>
-                <ul class="list-disc pl-4 space-y-0.5">
+            <div role="alert" class="mb-5 p-4 text-sm text-red-800 bg-red-50 border border-red-200 rounded-md">
+                <p class="font-semibold">Periksa kembali data yang dimasukkan:</p>
+                <ul class="mt-1 pl-4 space-y-0.5 list-disc">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -33,66 +39,59 @@
             </div>
         @endif
 
-        <!-- Card Form Edit -->
-        <div class="bg-white rounded-3xl border border-rose-100 p-6 sm:p-8 shadow-sm">
+        <section class="p-6 sm:p-7 bg-white border border-[#3b2230]/10 rounded-lg">
+            <div class="mb-5">
+                <h1 class="text-2xl [font-family:'Fraunces',serif] font-normal">Edit paket rias</h1>
+                <p class="mt-1 text-sm text-[#3b2230]/60">Sesuaikan tarif, durasi kerja, atau fasilitas layanan Anda.</p>
+            </div>
+
             <form action="{{ route('services.update', $service->id) }}" method="POST" class="space-y-4">
                 @csrf
                 @method('PATCH')
 
-                <!-- Nama Paket -->
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nama Paket Rias</label>
-                    <input type="text" name="title" value="{{ old('title', $service->title) }}" required placeholder="Contoh: Makeup Wisuda Glowing"
-                        class="w-full px-3.5 py-2.5 bg-slate-50/70 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-hidden focus:border-rose-500 focus:bg-white transition">
+                    <label for="title" class="{{ $labelClass }}">Nama paket</label>
+                    <input id="title" type="text" name="title" value="{{ old('title', $service->title) }}" required placeholder="Contoh: Makeup wisuda glowing" class="{{ $inputClass }}">
                 </div>
 
-                <!-- Kategori & Durasi -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Kategori</label>
-                        <select name="category" required
-                            class="w-full px-3.5 py-2.5 bg-slate-50/70 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-hidden focus:border-rose-500 focus:bg-white transition">
-                            <option value="graduation" @selected(old('category', $service->category) === 'graduation')>Wisuda / Graduation</option>
-                            <option value="wedding" @selected(old('category', $service->category) === 'wedding')>Wedding / Bridal</option>
-                            <option value="engagement" @selected(old('category', $service->category) === 'engagement')>Lamaran / Engagement</option>
-                            <option value="photoshoot" @selected(old('category', $service->category) === 'photoshoot')>Photoshoot / Studio</option>
-                            <option value="other" @selected(old('category', $service->category) === 'other')>Lainnya</option>
+                        <label for="category" class="{{ $labelClass }}">Kategori</label>
+                        <select id="category" name="category" required class="{{ $inputClass }}">
+                            @foreach($categories as $value => $label)
+                                <option value="{{ $value }}" @selected(old('category', $service->category) === $value)>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Durasi Rias (Menit)</label>
-                        <input type="number" name="duration_minutes" value="{{ old('duration_minutes', $service->duration_minutes) }}" min="15" step="15" required
-                            class="w-full px-3.5 py-2.5 bg-slate-50/70 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-hidden focus:border-rose-500 focus:bg-white transition">
+                        <label for="duration_minutes" class="{{ $labelClass }}">Durasi (menit)</label>
+                        <input id="duration_minutes" type="number" name="duration_minutes" value="{{ old('duration_minutes', $service->duration_minutes) }}" min="15" step="15" required class="{{ $inputClass }}">
                     </div>
                 </div>
 
-                <!-- Harga -->
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Harga Layanan (Rp)</label>
-                    <input type="number" name="price" value="{{ old('price', (int)$service->price) }}" min="0" step="5000" required placeholder="Contoh: 350000"
-                        class="w-full px-3.5 py-2.5 bg-slate-50/70 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-hidden focus:border-rose-500 focus:bg-white transition">
+                    <label for="price" class="{{ $labelClass }}">Harga (Rp)</label>
+                    <input id="price" type="number" name="price" value="{{ old('price', (int) $service->price) }}" min="0" step="5000" required placeholder="350000" class="{{ $inputClass }}">
                 </div>
 
-                <!-- Keterangan / Fasilitas -->
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Keterangan / Fasilitas</label>
-                    <textarea name="description" rows="3" placeholder="Termasuk hairdo/hijab do, bulu mata premium, dll."
-                        class="w-full px-3.5 py-2.5 bg-slate-50/70 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-hidden focus:border-rose-500 focus:bg-white transition">{{ old('description', $service->description) }}</textarea>
+                    <label for="description" class="{{ $labelClass }}">Keterangan / fasilitas</label>
+                    <textarea id="description" name="description" rows="3" placeholder="Termasuk hairdo/hijab do, bulu mata premium, dll." class="{{ $inputClass }}">{{ old('description', $service->description) }}</textarea>
                 </div>
 
-                <!-- Tombol Aksi -->
-                <div class="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
-                    <a href="{{ route('dashboard') }}" class="px-4 py-2.5 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-xl transition">
+                <div class="flex items-center justify-end gap-3 pt-5 border-t border-[#3b2230]/10">
+                    <a href="{{ route('dashboard') }}"
+                       class="px-4 py-2.5 text-sm font-semibold text-[#3b2230]/70 hover:text-[#3b2230] hover:bg-[#3b2230]/[0.05] rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
                         Batal
                     </a>
-                    <button type="submit" class="px-5 py-2.5 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition shadow-xs">
-                        Simpan Perubahan
+                    <button type="submit"
+                        class="px-5 py-2.5 text-sm font-semibold text-white bg-[#3b2230] hover:bg-[#3b2230]/90 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#3b2230]/60">
+                        Simpan perubahan
                     </button>
                 </div>
             </form>
-        </div>
-
+        </section>
     </div>
 </body>
 </html>

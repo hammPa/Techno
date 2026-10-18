@@ -4,92 +4,68 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MUA Dashboard - GlowMUA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-rose-50/30 text-slate-800 antialiased min-h-screen flex pb-20 md:pb-0 font-sans">
+<body class="bg-[#faf6f1] text-[#3b2230] [font-family:'DM_Sans',system-ui,sans-serif] antialiased min-h-screen md:flex pb-20 md:pb-0">
 
-    <!-- Desktop Sidebar -->
-    <aside class="hidden md:flex flex-col w-60 bg-white border-r border-rose-100 p-5 space-y-6 shrink-0">
-        <a href="{{ route('home') }}" class="flex items-center gap-2">
-            <span class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">✨</span>
-            <span class="font-bold text-lg text-slate-900">Glow<span class="text-rose-600">MUA</span></span>
-        </a>
+    <!-- Sidebar Desktop -->
+    <aside class="hidden md:flex flex-col w-64 shrink-0 md:sticky md:top-0 md:h-screen bg-[#f3ece4] border-r border-[#3b2230]/10 px-6 py-8">
+        <a href="{{ route('home') }}" class="text-2xl [font-family:'Fraunces',serif] tracking-tight">GlowMUA</a>
 
-        <div class="px-3 py-2 bg-rose-50/80 rounded-xl border border-rose-100/60">
-            <span class="text-[10px] uppercase font-bold text-rose-600 tracking-wider block">Mode Partner MUA</span>
-            <span class="text-xs font-semibold text-slate-800 truncate block">{{ $user->name }}</span>
+        <div class="mt-10 pb-6 border-b border-[#3b2230]/10">
+            <span class="block text-xs text-[#3b2230]/55">Masuk sebagai partner MUA</span>
+            <span class="mt-1 block text-sm font-semibold truncate">{{ $user->name }}</span>
         </div>
 
-        <!-- Desktop Navigation Tabs -->
-        <nav class="flex-1 space-y-1">
-            <button type="button" onclick="switchTab('ringkasan')" id="btn-tab-ringkasan"
-                class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 bg-rose-50 text-rose-700 rounded-xl font-semibold text-xs transition">
-                <span>📊</span> Ringkasan
+        <nav class="mt-6 flex-1 space-y-1" aria-label="Menu dashboard">
+            <button type="button" data-tab="ringkasan" onclick="switchTab('ringkasan')" aria-current="page"
+                class="w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-[#3b2230]/70 hover:bg-[#3b2230]/[0.06] transition-colors aria-[current=page]:bg-[#3b2230] aria-[current=page]:text-[#faf6f1] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+                Ringkasan
             </button>
-            <button type="button" onclick="switchTab('reservasi')" id="btn-tab-reservasi"
-                class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
-                <span>📅</span> Reservasi
-                @if($bookings->where('status', 'pending')->count() > 0)
-                    <span class="ml-auto px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-md">
-                        {{ $bookings->where('status', 'pending')->count() }}
-                    </span>
-                @endif
-            </button>
-            <button type="button" onclick="switchTab('jadwal')" id="btn-tab-jadwal"
-                class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
-                <span>⏰</span> Jadwal Kerja
-            </button>
-            <button type="button" onclick="switchTab('saldo')" id="btn-tab-saldo"
-                class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
-                <span>💸</span> Tarik Saldo
-            </button>
-            <button type="button" onclick="switchTab('paket')" id="btn-tab-paket"
-                class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
-                <span>💄</span> Paket Rias
-                <span class="ml-auto text-[10px] text-slate-400 font-semibold">{{ $services->count() }}</span>
-            </button>
-            <button type="button" onclick="switchTab('profil')" id="btn-tab-profil"
-                class="tab-btn w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-600 hover:bg-rose-50/50 rounded-xl font-medium text-xs transition">
-                <span>⚙️</span> Profil & Portofolio
+            <button type="button" data-tab="jadwal" onclick="switchTab('jadwal')"
+                class="w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-[#3b2230]/70 hover:bg-[#3b2230]/[0.06] transition-colors aria-[current=page]:bg-[#3b2230] aria-[current=page]:text-[#faf6f1] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3b2230]/40">
+                Jadwal kerja
             </button>
         </nav>
-
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="w-full flex items-center gap-3 px-3.5 py-2.5 text-slate-500 hover:text-rose-600 text-xs font-medium rounded-xl hover:bg-rose-50/50 transition">
-                🚪 Keluar
-            </button>
-        </form>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 w-full">
-        <!-- Top Bar -->
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Studio: {{ $profile->studio_name ?? $user->name }} 👋</h1>
-                <p class="text-xs text-slate-500">Kelola reservasi masuk, selesaikan job dengan kode verifikasi, dan kelola portofolio</p>
+    <!-- Konten Utama -->
+    <main class="flex-1 min-w-0 max-w-6xl mx-auto w-full px-5 py-8 sm:px-8 lg:px-12 lg:py-12">
+
+        <!-- Header -->
+        <header class="flex items-start justify-between gap-4 mb-10">
+            <div class="min-w-0">
+                <h1 class="text-3xl lg:text-4xl leading-tight [font-family:'Fraunces',serif] font-normal">
+                    Halo, {{ $user->name }}
+                </h1>
+                <p class="mt-2 text-sm text-[#3b2230]/60 max-w-xl">
+                    Kelola reservasi, selesaikan job dan kelola portofolio.
+                </p>
             </div>
-            <a href="{{ route('profile.edit') }}" class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 font-bold flex items-center justify-center text-xs border border-rose-200 uppercase shadow-sm">
+            <a href="{{ route('profile.edit') }}" aria-label="Edit profil"
+                class="shrink-0 w-11 h-11 rounded-full bg-[#3b2230] text-[#faf6f1] text-sm font-medium uppercase flex items-center justify-center hover:bg-[#2a1620] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#faf6f1] focus-visible:ring-[#3b2230]">
                 {{ substr($user->name, 0, 2) }}
             </a>
-        </div>
+        </header>
 
         @if(session('success'))
-            <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-2xl flex items-center justify-between shadow-xs">
-                <span>✓ {{ session('success') }}</span>
+            <div class="mb-6 px-4 py-3 border-l-2 border-[#4d7a5a] bg-[#e5eee6] text-sm text-[#2f5a3c]">
+                {{ session('success') }}
             </div>
         @endif
 
         @if($errors->any())
-            <div class="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-2xl shadow-xs">
-                ⚠️ {{ $errors->first() }}
+            <div class="mb-6 px-4 py-3 border-l-2 border-[#a23b3b] bg-[#f4e3df] text-sm text-[#7a2a2a]">
+                {{ $errors->first() }}
             </div>
         @endif
 
         @include('partials.mua.verification-banner')
 
-        <!-- Tab Contents -->
+        <!-- Isi Tab -->
         <div id="content-ringkasan" class="tab-content">
             @include('partials.mua.overview')
         </div>
@@ -115,76 +91,34 @@
         </div>
     </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-rose-100 px-4 py-2 flex items-center justify-between z-50">
-        <button type="button" onclick="switchTab('ringkasan')" id="btn-mobile-ringkasan" class="mobile-tab-btn flex flex-col items-center text-rose-600">
-            <span class="text-base">📊</span>
-            <span class="text-[10px] font-semibold mt-0.5">Ringkasan</span>
-        </button>
-        <button type="button" onclick="switchTab('reservasi')" id="btn-mobile-reservasi" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
-            <span class="text-base">📅</span>
-            <span class="text-[10px] font-medium mt-0.5">Reservasi</span>
-        </button>
-        <button type="button" onclick="switchTab('jadwal')" id="btn-mobile-jadwal" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
-            <span class="text-base">⏰</span>
-            <span class="text-[10px] font-medium mt-0.5">Jadwal</span>
-        </button>
-        <button type="button" onclick="switchTab('saldo')" id="btn-mobile-saldo" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
-            <span class="text-base">💸</span>
-            <span class="text-[10px] font-medium mt-0.5">Saldo</span>
-        </button>
-        <button type="button" onclick="switchTab('paket')" id="btn-mobile-paket" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
-            <span class="text-base">💄</span>
-            <span class="text-[10px] font-medium mt-0.5">Paket</span>
-        </button>
-        <button type="button" onclick="switchTab('profil')" id="btn-mobile-profil" class="mobile-tab-btn flex flex-col items-center text-slate-400 hover:text-rose-600">
-            <span class="text-base">⚙️</span>
-            <span class="text-[10px] font-medium mt-0.5">Profil</span>
-        </button>
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="flex flex-col items-center text-slate-400 hover:text-rose-600">
-                <span class="text-base">🚪</span>
-                <span class="text-[10px] font-medium mt-0.5">Keluar</span>
-            </button>
-        </form>
+    <!-- Navigasi Bawah (Mobile) -->
+    <nav class="md:hidden fixed bottom-0 inset-x-0 z-50 bg-[#faf6f1]/95 backdrop-blur border-t border-[#3b2230]/10 flex" aria-label="Menu dashboard">
+        <button type="button" data-tab="ringkasan" onclick="switchTab('ringkasan')" aria-current="page"
+            class="flex-1 px-2 py-3.5 text-[0.7rem] font-medium text-[#3b2230]/50 border-t-2 border-transparent transition-colors aria-[current=page]:text-[#3b2230] aria-[current=page]:border-[#3b2230]">Ringkasan</button>
+        <button type="button" data-tab="jadwal" onclick="switchTab('jadwal')"
+            class="flex-1 px-2 py-3.5 text-[0.7rem] font-medium text-[#3b2230]/50 border-t-2 border-transparent transition-colors aria-[current=page]:text-[#3b2230] aria-[current=page]:border-[#3b2230]">Jadwal</button>
     </nav>
 
-    <!-- Tab Control Script -->
+    <!-- Kontrol Tab -->
     <script>
         const validTabs = ['ringkasan', 'reservasi', 'jadwal', 'saldo', 'paket', 'profil'];
 
         function switchTab(tab) {
             if (!validTabs.includes(tab)) tab = 'ringkasan';
 
-            // Sembunyikan seluruh konten tab
+            // Tampilkan konten tab yang dipilih saja
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-
-            // Tampilkan tab yang dipilih
             const activeContent = document.getElementById(`content-${tab}`);
             if (activeContent) activeContent.classList.remove('hidden');
 
-            // Reset tombol desktop sidebar
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-rose-50', 'text-rose-700', 'font-semibold');
-                btn.classList.add('text-slate-600', 'font-medium');
+            // Tandai tombol aktif (sidebar dan navigasi mobile) lewat aria-current
+            document.querySelectorAll('[data-tab]').forEach(btn => {
+                if (btn.dataset.tab === tab) {
+                    btn.setAttribute('aria-current', 'page');
+                } else {
+                    btn.removeAttribute('aria-current');
+                }
             });
-            const activeDesktopBtn = document.getElementById(`btn-tab-${tab}`);
-            if (activeDesktopBtn) {
-                activeDesktopBtn.classList.remove('text-slate-600', 'font-medium');
-                activeDesktopBtn.classList.add('bg-rose-50', 'text-rose-700', 'font-semibold');
-            }
-
-            // Reset tombol mobile bottom nav
-            document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
-                btn.classList.remove('text-rose-600');
-                btn.classList.add('text-slate-400');
-            });
-            const activeMobileBtn = document.getElementById(`btn-mobile-${tab}`);
-            if (activeMobileBtn) {
-                activeMobileBtn.classList.remove('text-slate-400');
-                activeMobileBtn.classList.add('text-rose-600');
-            }
 
             // Sinkronisasi hash URL
             history.replaceState(null, null, `#${tab}`);
