@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $mua->muaProfile->studio_name ?? $mua->name }} - GlowMUA</title>
+    <title>{{ $mua->muaProfile->studio_name ?? $mua->name }} - TemuMUA</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap" rel="stylesheet">
@@ -61,7 +61,7 @@
                 if (str_starts_with($cleanPhone, '0')) {
                     $cleanPhone = '62' . substr($cleanPhone, 1);
                 }
-                $waText = urlencode("Halo {$mua->name}, saya melihat profil studio Anda di GlowMUA dan ingin bertanya jadwal/booking rias.");
+                $waText = urlencode("Halo {$mua->name}, saya melihat profil studio Anda di TemuMUA dan ingin bertanya jadwal/booking rias.");
             @endphp
             <a href="https://wa.me/{{ $cleanPhone }}?text={{ $waText }}" target="_blank" rel="noopener"
                 class="shrink-0 px-5 py-3 bg-[#3b2230] hover:bg-[#2a1620] text-[#faf6f1] rounded-md text-sm font-medium text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:ring-[#3b2230]">
