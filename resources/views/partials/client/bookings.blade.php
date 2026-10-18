@@ -1,11 +1,12 @@
-<div class="bg-white rounded-3xl border border-rose-100 p-5 sm:p-6 shadow-sm mb-8">
-    <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+{{-- partials/client/bookings.blade.php --}}
+<section class="p-6 sm:p-7 bg-white border border-[#3b2230]/10 rounded-lg">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
         <div>
-            <h2 class="font-bold text-base text-slate-900">Jadwal Reservasi Rias Saya</h2>
-            <p class="text-xs text-slate-400">Daftar agenda riasan dan transaksi pembayaran Anda</p>
+            <h2 class="text-2xl lg:text-3xl [font-family:'Fraunces',serif] font-normal leading-tight">Jadwal reservasi rias saya</h2>
+            <p class="mt-1.5 text-sm text-[#3b2230]/60">Daftar agenda riasan dan transaksi pembayaran Anda.</p>
         </div>
-        <span class="text-xs font-bold px-2.5 py-1 bg-rose-50 text-rose-700 rounded-full">
-            {{ $myBookings->count() }} Pesanan
+        <span class="shrink-0 px-3 py-1 rounded-full bg-[#3b2230]/[0.07] text-sm font-medium">
+            {{ $myBookings->count() }} pesanan
         </span>
     </div>
 
@@ -13,9 +14,9 @@
         @forelse($myBookings as $b)
             @include('partials.client.single-booking-card', ['b' => $b])
         @empty
-            <div class="text-center py-8 text-slate-400 text-xs">
-                Belum ada reservasi aktif. Buka tab <strong>Katalog MUA</strong> untuk mulai memesan jadwal rias.
+            <div class="py-12 text-center text-sm text-[#3b2230]/60 border border-dashed border-[#3b2230]/20 rounded-md">
+                Belum ada reservasi aktif. Buka tab <strong class="font-semibold text-[#3b2230]">Katalog MUA</strong> untuk mulai memesan jadwal rias.
             </div>
         @endforelse
     </div>
-</div>
+</section>

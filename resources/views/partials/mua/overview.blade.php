@@ -1,11 +1,3 @@
-{{--
-    partials/mua/overview.blade.php
-    Memakai variabel aslimu: $bookings, $services, $user->available_balance.
-    Variabel dari DashboardController:
-      $portfolios   koleksi Portfolio, field: image_url (path di disk default / Supabase)
-      $reviews      koleksi ulasan MUA (relasi muaReviews), field: rating, comment, created_at, relasi client->name
-      $reviewsCount total ulasan (default: jumlah $reviews)
---}}
 @php
     $portfolios   = $portfolios ?? collect();
     $reviews      = $reviews ?? collect();
