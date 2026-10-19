@@ -33,7 +33,7 @@
             <div class="w-full max-w-[26rem] mx-auto">
 
                 <!-- Wordmark (mobile) -->
-                <a href="{{ route('home') }}" class="block mb-8 text-center text-2xl [font-family:'Fraunces',serif] md:hidden">GlowMUA</a>
+                <a href="{{ route('home') }}" class="block mb-8 text-center text-2xl [font-family:'Fraunces',serif] md:hidden">TemuMUA</a>
 
                 <div class="mb-7 text-center md:text-left">
                     <h1 class="text-3xl [font-family:'Fraunces',serif] font-normal">Selamat datang</h1>
