@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GlowMUA - Direktori &amp; Reservasi Makeup Artist</title>
+    <title>TemuMUA - Direktori &amp; Reservasi Makeup Artist</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&display=swap" rel="stylesheet">
@@ -16,11 +16,11 @@
 
     {{-- Main Content --}}
     <main class="flex-1">
-        {{-- Hero & form pencarian --}}
         @include('welcome.hero')
-
-        {{-- Katalog MUA --}}
         @include('welcome.catalog')
+        @include('welcome.why')          {{-- alasan pakai app --}}
+        @include('welcome.how-it-works') {{-- cara kerja --}}
+        @include('welcome.cta-mua')      {{-- ajakan daftar sebagai MUA --}}
     </main>
 
     {{-- Footer --}}
