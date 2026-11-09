@@ -19,6 +19,7 @@
         @include('welcome.hero')
         @include('welcome.catalog')
         @include('welcome.why')          {{-- alasan pakai app --}}
+        @include('welcome.pricing')
         @include('welcome.how-it-works') {{-- cara kerja --}}
         @include('welcome.cta-mua')      {{-- ajakan daftar sebagai MUA --}}
     </main>
